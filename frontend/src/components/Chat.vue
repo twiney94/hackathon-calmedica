@@ -2,6 +2,7 @@
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import {nextTick, onMounted, watch} from "vue";
+import {ref} from "vue";
 
 const props = defineProps({
   isOpened: {
@@ -20,7 +21,9 @@ const props = defineProps({
 
 defineEmits(['close'])
 
-function scrollToLastMessage() {
+async function scrollToLastMessage() {
+  await nextTick();
+
   const chat: HTMLElement = document.querySelector('.chat') as HTMLElement;
   const lastMessage: HTMLElement = chat.querySelector('.chat__message:last-child') as HTMLElement;
 
@@ -28,13 +31,32 @@ function scrollToLastMessage() {
 }
 
 watch(props.messages, async () => {
-  await nextTick();
-  scrollToLastMessage();
+
+  await scrollToLastMessage();
 })
 
-onMounted(() => {
-  scrollToLastMessage();
+onMounted(async () => {
+  await scrollToLastMessage();
 })
+
+async function addMessage() {
+  const messageInput = document.querySelector('.chat__input') as HTMLInputElement;
+
+  if(messageInput.value.trim() === '') return;
+
+  const dateTime = new Date();
+  const formatDateTime = `${dateTime.getDate()}-${dateTime.getMonth() + 1}-${dateTime.getFullYear()} ${dateTime.getHours()}:${dateTime.getMinutes()}`;
+
+  props.messages.push({
+    id: props.messages.length + 1,
+    text: messageInput.value,
+    sender: 'user',
+    metadata: `Orange - Reçu - ${formatDateTime}`
+  })
+
+  await scrollToLastMessage();
+  messageInput.value = '';
+}
 </script>
 
 <template>
@@ -77,7 +99,7 @@ onMounted(() => {
         </span>
       </li>
     </ul>
-    <form class="relative flex gap-2.5">
+    <form class="relative flex gap-2.5" @submit.prevent="addMessage">
       <Input
           class="chat__input"
           placeholder="Tapez votre message"
