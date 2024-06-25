@@ -2,7 +2,6 @@
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import {nextTick, onMounted, watch} from "vue";
-import {ref} from "vue";
 
 const props = defineProps({
   isOpened: {
@@ -31,7 +30,6 @@ async function scrollToLastMessage() {
 }
 
 watch(props.messages, async () => {
-
   await scrollToLastMessage();
 })
 
@@ -41,21 +39,54 @@ onMounted(async () => {
 
 async function addMessage() {
   const messageInput = document.querySelector('.chat__input') as HTMLInputElement;
+  const attachedFile = document.querySelector('#fileInput') as HTMLInputElement;
 
-  if(messageInput.value.trim() === '') return;
+  if(
+      messageInput.value.trim() === '' ||
+      attachedFile.files && attachedFile.files.length > 0
+  ) {
+    return;
+  }
 
+  if(messageInput.value.trim() !== '') {
+    const dateTime = new Date();
+    const formatDateTime = `${dateTime.getDate()}-${dateTime.getMonth() + 1}-${dateTime.getFullYear()} ${dateTime.getHours()}:${dateTime.getMinutes()}`;
+
+    props.messages.push({
+      id: props.messages.length + 1,
+      text: messageInput.value,
+      sender: 'user',
+      metadata: `Orange - Reçu - ${formatDateTime}`
+    })
+
+    await scrollToLastMessage();
+    messageInput.value = '';
+  } else {
+    addAudio();
+  }
+}
+
+function addAudio() {
+  const attachedFile = document.querySelector('#fileInput') as HTMLInputElement;
   const dateTime = new Date();
   const formatDateTime = `${dateTime.getDate()}-${dateTime.getMonth() + 1}-${dateTime.getFullYear()} ${dateTime.getHours()}:${dateTime.getMinutes()}`;
+  const file = attachedFile.files[0];
+  const reader = new FileReader();
 
-  props.messages.push({
-    id: props.messages.length + 1,
-    text: messageInput.value,
-    sender: 'user',
-    metadata: `Orange - Reçu - ${formatDateTime}`
-  })
+  reader.onload = () => {
+    props.messages.push({
+      id: props.messages.length + 1,
+      audio: reader.result as string,
+      sender: 'user',
+      metadata: `Orange - Reçu - ${formatDateTime}`
+    })
 
-  await scrollToLastMessage();
-  messageInput.value = '';
+    scrollToLastMessage();
+  }
+
+  reader.readAsDataURL(file);
+
+  attachedFile.value = '';
 }
 </script>
 
@@ -74,7 +105,7 @@ async function addMessage() {
     </div>
     <ul class="flex flex-col flex-1 overflow-y-auto gap-3">
       <li
-          v-for="{ id, text, sender, metadata } in messages"
+          v-for="{ id, text, audio, sender, metadata } in messages"
           :key="id"
           :class="[
               'chat__message flex flex-col w-fit max-w-96',
@@ -87,7 +118,17 @@ async function addMessage() {
                 sender === 'user' ? 'bg-sky-500 text-white' : 'bg-sky-100',
             ]"
         >
-          <p class="text-lg">{{ text }}</p>
+          <p
+              class="text-lg"
+              v-if="text"
+          >
+            {{ text }}
+          </p>
+          <audio
+              :src="audio"
+              controls
+              v-if="audio"
+          />
         </div>
         <span
             :class="[
@@ -104,13 +145,16 @@ async function addMessage() {
           class="chat__input"
           placeholder="Tapez votre message"
       />
-      <button class="attached-file px-2">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-             class="size-5"
-        >
-          <path stroke-linecap="round" stroke-linejoin="round" d="m18.375 12.739-7.693 7.693a4.5 4.5 0 0 1-6.364-6.364l10.94-10.94A3 3 0 1 1 19.5 7.372L8.552 18.32m.009-.01-.01.01m5.699-9.941-7.81 7.81a1.5 1.5 0 0 0 2.112 2.13" />
-        </svg>
-      </button>
+      <div class="attached-file flex justify-center items-center px-2">
+        <input type="file" id="fileInput" class="hidden" accept=".mp3" @change="addAudio"/>
+        <label for="fileInput">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+               class="size-5 cursor-pointer"
+          >
+            <path stroke-linecap="round" stroke-linejoin="round" d="m18.375 12.739-7.693 7.693a4.5 4.5 0 0 1-6.364-6.364l10.94-10.94A3 3 0 1 1 19.5 7.372L8.552 18.32m.009-.01-.01.01m5.699-9.941-7.81 7.81a1.5 1.5 0 0 0 2.112 2.13" />
+          </svg>
+        </label>
+      </div>
       <Button class="bg-sky-500" type="submit" size="icon">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
              class="size-5"
