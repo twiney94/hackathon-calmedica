@@ -1,7 +1,15 @@
 <script setup lang="ts">
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import {nextTick, onMounted, watch} from "vue";
+import {nextTick, onMounted, PropType, watch} from "vue";
+
+interface Message {
+  id: number;
+  text?: string;
+  audio?: string;
+  sender: string;
+  metadata: string;
+}
 
 const props = defineProps({
   isOpened: {
@@ -13,7 +21,7 @@ const props = defineProps({
     required: true,
   },
   messages: {
-    type: Array,
+    type: Array as PropType<Message[]>,
     required: true,
   },
 })
