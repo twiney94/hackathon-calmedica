@@ -103,7 +103,7 @@ function addAudio() {
         </svg>
       </button>
     </div>
-    <ul class="flex flex-col flex-1 overflow-y-auto gap-3">
+    <ul class="flex flex-col flex-1 overflow-y-auto gap-3 shadow-inner">
       <li
           v-for="{ id, text, audio, sender, metadata } in messages"
           :key="id"
