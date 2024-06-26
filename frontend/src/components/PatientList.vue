@@ -25,8 +25,6 @@ import type {
   ColumnFiltersState,
   SortingState,
   VisibilityState,
-  Table,
-  RowModel,
 } from "@tanstack/vue-table";
 import {
   FlexRender,
@@ -157,7 +155,7 @@ const columns: ColumnDef<Payment>[] = [
           variant: "ghost",
           onClick: () => column.toggleSorting(column.getIsSorted() === "asc"),
         },
-        () => ["Phone", h(ArrowUpDown, { class: "ml-2 h-4 w-4" })]
+        () => ["N° de téléphone", h(ArrowUpDown, { class: "ml-2 h-4 w-4" })]
       );
     },
     cell: ({ row }) => h("div", { class: "lowercase" }, row.getValue("phone")),
