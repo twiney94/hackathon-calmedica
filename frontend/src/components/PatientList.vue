@@ -232,7 +232,7 @@ const table = useVueTable({
           <SelectValue placeholder="Filter status" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">Statuts</SelectItem>
+          <SelectItem value="all">Status</SelectItem>
           <SelectItem value="red">Red</SelectItem>
           <SelectItem value="orange">Orange</SelectItem>
           <SelectItem value="yellow">Yellow</SelectItem>

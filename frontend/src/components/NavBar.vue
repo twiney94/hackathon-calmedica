@@ -13,7 +13,7 @@
           />
         </router-link>
         <div class="flex gap-4">
-          <router-link to="/login" class="text-gray-800"
+          <router-link to="/login" class="text-sky-600 font-bold"
             >Afficher les patients</router-link
           >
           <router-link to="/register" class="text-gray-800"
