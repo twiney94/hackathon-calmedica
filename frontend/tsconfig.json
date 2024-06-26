@@ -3,8 +3,11 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+    "outDir": "./dist", // Ensure outDir is set
+    "noEmit": false // Ensure noEmit is not set to true
   },
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
   "files": [],
   "references": [
     {

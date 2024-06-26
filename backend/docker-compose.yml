@@ -14,6 +14,19 @@ services:
       MYSQL_RANDOM_ROOT_PASSWORD: yes
     volumes:
       - mysql-data:/var/lib/mysql
+      
+  whisper-ai:
+    container_name: whisper_ai
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+    volumes:
+      - whisper-data:/python-docker
 
 volumes:
   mysql-data: {}
+  whisper-data: {}

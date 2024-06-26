@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { Button } from "@/components/ui/button";
-import CalmedicaLogo from "@/assets/calmedica-flat.png";
+import NavBar from "@/components/NavBar.vue";
+import PatientList from "@/components/PatientList.vue";
 </script>
 
 <template>
-  <div class="container">
-    <img :src="CalmedicaLogo" alt="Calmedica Logo" />
-    <Button class="bg-calmedica">Click me</Button>
+  <div class="container flex flex-col py-8 gap-8">
+    <NavBar />
+    <PatientList />
   </div>
 </template>
