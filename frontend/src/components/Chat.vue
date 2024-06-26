@@ -20,17 +20,17 @@ const props = defineProps({
 
 defineEmits(['close'])
 
-async function scrollToLastMessage() {
+async function scrollToLastMessage(behavior: ScrollBehavior = 'auto') {
   await nextTick();
 
   const chat: HTMLElement = document.querySelector('.chat') as HTMLElement;
   const lastMessage: HTMLElement = chat.querySelector('.chat__message:last-child') as HTMLElement;
 
-  lastMessage.scrollIntoView({ behavior: 'smooth', block: 'end' })
+  lastMessage.scrollIntoView({ behavior: behavior, block: 'end' })
 }
 
 watch(props.messages, async () => {
-  await scrollToLastMessage();
+  await scrollToLastMessage('smooth');
 })
 
 onMounted(async () => {
@@ -59,7 +59,7 @@ async function addMessage() {
       metadata: `Orange - Reçu - ${formatDateTime}`
     })
 
-    await scrollToLastMessage();
+    await scrollToLastMessage('smooth');
     messageInput.value = '';
   } else {
     addAudio();
@@ -81,7 +81,7 @@ function addAudio() {
       metadata: `Orange - Reçu - ${formatDateTime}`
     })
 
-    scrollToLastMessage();
+    scrollToLastMessage('smooth');
   }
 
   reader.readAsDataURL(file);
