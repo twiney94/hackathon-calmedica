@@ -21,6 +21,7 @@ func CreateMessage(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, message)
+
 }
 
 // GetMessages handles retrieving messages

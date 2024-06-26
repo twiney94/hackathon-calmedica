@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"backend/models"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -8,7 +9,7 @@ import (
 )
 
 var clients = make(map[*websocket.Conn]bool) // Connected clients
-var broadcast = make(chan Message)           // Broadcast channel
+var broadcast = make(chan models.Message)    // Broadcast channel
 
 // Configure the upgrader
 var upgrader = websocket.Upgrader{
@@ -20,11 +21,11 @@ var upgrader = websocket.Upgrader{
 }
 
 // Define our message object
-type Message struct {
-	SenderID   uint   `json:"sender_id"`
-	ReceiverID uint   `json:"receiver_id"`
-	Content    string `json:"content"`
-}
+//type Message struct {
+//	SenderID   uint   `json:"sender_id"`
+//	ReceiverID uint   `json:"receiver_id"`
+//	Content    string `json:"content"`
+//}
 
 // HandleConnections upgrades initial GET request to a websocket
 func HandleConnections(c *gin.Context) {
@@ -38,7 +39,7 @@ func HandleConnections(c *gin.Context) {
 	clients[ws] = true
 
 	for {
-		var msg Message
+		var msg models.Message
 		// Read in a new message as JSON and map it to a Message object
 		err := ws.ReadJSON(&msg)
 		if err != nil {
