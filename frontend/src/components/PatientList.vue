@@ -1,24 +1,3 @@
-<style scoped>
-.status-circle {
-  display: inline-block;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-}
-.status-blue {
-  background-color: #417cda;
-}
-.status-yellow {
-  background-color: #fcc858;
-}
-.status-orange {
-  background-color: #fdba74;
-}
-.status-red {
-  background-color: #dc2626;
-}
-</style>
-
 <script setup lang="ts">
 import Chat from "@/components/Chat.vue";
 import type {
@@ -199,9 +178,17 @@ const columns: ColumnDef<Payment>[] = [
     id: "actions",
     header: "Actions",
     cell: () => {
-      return h(Button, { variant: "outline", size: "icon" }, [
-        h(MessageSquare, { class: "w-4 h-4" }),
-      ]);
+      return h(
+        Button,
+        {
+          variant: "outline",
+          size: "icon",
+          onClick: () => {
+            chatIsOpened.value = true;
+          },
+        },
+        [h(MessageSquare, { class: "w-4 h-4" })]
+      );
     },
     enableHiding: false,
   },
