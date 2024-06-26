@@ -10,31 +10,31 @@ const messages = ref([
     id: 1,
     text: 'Lorem ipsum dolor sit amet consectetur. Faucibus nibh pulvinar erat aliquam diam.',
     sender: 'bot',
-    metadata: 'Prévu le: 26-04-2024 14:32'
+    metadata: '26-04-2024 14:32'
   },
   {
     id: 2,
     text: 'Lorem ipsum dolor sit amet consectetur. Faucibus nibh pulvinar erat aliquam diam.',
     sender: 'user',
-    metadata: 'Orange - Reçu - 26-04-2024 14:33'
+    metadata: '26-04-2024 14:33'
   },
   {
     id: 3,
     text: 'Lorem ipsum dolor sit amet consectetur. Faucibus nibh pulvinar erat aliquam diam.',
     sender: 'bot',
-    metadata: 'Orange - Reçu - 26-04-2024 14:34'
+    metadata: '26-04-2024 14:34'
   },
   {
     id: 4,
     text: 'Lorem ipsum dolor sit amet consectetur. Faucibus nibh pulvinar erat aliquam diam.',
     sender: 'user',
-    metadata: 'Orange - Reçu - 26-04-2024 14:35'
+    metadata: '26-04-2024 14:35'
   },
   {
     id: 5,
     text: 'Lorem ipsum dolor sit amet consectetur. Faucibus nibh pulvinar erat aliquam diam.',
     sender: 'bot',
-    metadata: 'Orange - Reçu - 26-04-2024 14:36'
+    metadata: '26-04-2024 14:36'
   }
 ])
 </script>
