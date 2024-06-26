@@ -1,25 +1,5 @@
-<style scoped>
-.status-circle {
-  display: inline-block;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-}
-.status-blue {
-  background-color: #417cda;
-}
-.status-yellow {
-  background-color: #fcc858;
-}
-.status-orange {
-  background-color: #fdba74;
-}
-.status-red {
-  background-color: #dc2626;
-}
-</style>
-
 <script setup lang="ts">
+import Chat from "@/components/Chat.vue";
 import type {
   ColumnDef,
   ColumnFiltersState,
@@ -98,6 +78,40 @@ const data: Payment[] = [
   },
 ];
 
+const chatIsOpened = ref(true);
+const messages = ref([
+  {
+    id: 1,
+    text: "Lorem ipsum dolor sit amet consectetur. Faucibus nibh pulvinar erat aliquam diam.",
+    sender: "bot",
+    metadata: "26-04-2024 14:32",
+  },
+  {
+    id: 2,
+    text: "Lorem ipsum dolor sit amet consectetur. Faucibus nibh pulvinar erat aliquam diam.",
+    sender: "user",
+    metadata: "26-04-2024 14:33",
+  },
+  {
+    id: 3,
+    text: "Lorem ipsum dolor sit amet consectetur. Faucibus nibh pulvinar erat aliquam diam.",
+    sender: "bot",
+    metadata: "26-04-2024 14:34",
+  },
+  {
+    id: 4,
+    text: "Lorem ipsum dolor sit amet consectetur. Faucibus nibh pulvinar erat aliquam diam.",
+    sender: "user",
+    metadata: "26-04-2024 14:35",
+  },
+  {
+    id: 5,
+    text: "Lorem ipsum dolor sit amet consectetur. Faucibus nibh pulvinar erat aliquam diam.",
+    sender: "bot",
+    metadata: "26-04-2024 14:36",
+  },
+]);
+
 const statusOrder = ["red", "orange", "yellow", "blue"];
 
 const columns: ColumnDef<Payment>[] = [
@@ -164,9 +178,17 @@ const columns: ColumnDef<Payment>[] = [
     id: "actions",
     header: "Actions",
     cell: () => {
-      return h(Button, { variant: "outline", size: "icon" }, [
-        h(MessageSquare, { class: "w-4 h-4" }),
-      ]);
+      return h(
+        Button,
+        {
+          variant: "outline",
+          size: "icon",
+          onClick: () => {
+            chatIsOpened.value = true;
+          },
+        },
+        [h(MessageSquare, { class: "w-4 h-4" })]
+      );
     },
     enableHiding: false,
   },
@@ -330,4 +352,31 @@ const table = useVueTable({
       </div>
     </div>
   </div>
+  <Chat
+    :isOpened="chatIsOpened"
+    :headInfo="'37475644738859 | Doe | John | 930208295 | 2024-06-25'"
+    :messages="messages"
+    @close="chatIsOpened = false"
+  />
 </template>
+
+<style scoped>
+.status-circle {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+.status-blue {
+  background-color: #417cda;
+}
+.status-yellow {
+  background-color: #fcc858;
+}
+.status-orange {
+  background-color: #fdba74;
+}
+.status-red {
+  background-color: #dc2626;
+}
+</style>
