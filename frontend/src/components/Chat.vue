@@ -68,25 +68,28 @@ async function addMessage() {
 
 function addAudio() {
   const attachedFile = document.querySelector('#fileInput') as HTMLInputElement;
-  const dateTime = new Date();
-  const formatDateTime = `${dateTime.getDate()}-${dateTime.getMonth() + 1}-${dateTime.getFullYear()} ${dateTime.getHours()}:${dateTime.getMinutes()}`;
-  const file = attachedFile.files[0];
-  const reader = new FileReader();
 
-  reader.onload = () => {
-    props.messages.push({
-      id: props.messages.length + 1,
-      audio: reader.result as string,
-      sender: 'user',
-      metadata: `Orange - Reçu - ${formatDateTime}`
-    })
+  if(attachedFile && attachedFile.files && attachedFile.files.length > 0) {
+    const dateTime = new Date();
+    const formatDateTime = `${dateTime.getDate()}-${dateTime.getMonth() + 1}-${dateTime.getFullYear()} ${dateTime.getHours()}:${dateTime.getMinutes()}`;
+    const file = attachedFile.files[0];
+    const reader = new FileReader();
 
-    scrollToLastMessage('smooth');
+    reader.onload = () => {
+      props.messages.push({
+        id: props.messages.length + 1,
+        audio: reader.result as string,
+        sender: 'user',
+        metadata: `Orange - Reçu - ${formatDateTime}`
+      })
+
+      scrollToLastMessage('smooth');
+    }
+
+    reader.readAsDataURL(file);
+
+    attachedFile.value = '';
   }
-
-  reader.readAsDataURL(file);
-
-  attachedFile.value = '';
 }
 </script>
 
