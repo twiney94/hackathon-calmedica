@@ -2,6 +2,7 @@ package main
 
 import (
 	"backend/config"
+	"backend/handlers"
 	"backend/models"
 	"backend/routes"
 	"github.com/google/uuid"
@@ -26,6 +27,15 @@ func main() {
 	// Register routes
 	routes.SetupUserRoutes(r, db)
 	routes.RegisterPatientRoutes(r)
+
+	// Register message routes
+	routes.SetupMessageRoutes(r, db)
+
+	// Register chat routes
+	routes.SetupChatRoutes(r)
+
+	// Start handling messages
+	go handlers.HandleMessages()
 
 	// Start server
 	err := r.Run(":8080")
