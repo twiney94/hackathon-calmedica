@@ -56,7 +56,7 @@ async function addMessage() {
       id: props.messages.length + 1,
       text: messageInput.value,
       sender: 'user',
-      metadata: `Orange - Reçu - ${formatDateTime}`
+      metadata: formatDateTime
     })
 
     await scrollToLastMessage('smooth');
