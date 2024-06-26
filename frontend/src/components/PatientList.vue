@@ -78,7 +78,7 @@ const data: Payment[] = [
   },
 ];
 
-const chatIsOpened = ref(true);
+const chatIsOpened = ref(false);
 const messages = ref([
   {
     id: 1,
