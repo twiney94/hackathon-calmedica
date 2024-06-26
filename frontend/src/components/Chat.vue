@@ -115,7 +115,7 @@ function addAudio() {
         <div
             :class="[
                 'rounded-lg shadow-md p-2.5',
-                sender === 'user' ? 'bg-sky-500 text-white' : 'bg-sky-100',
+                sender === 'user' ? 'bg-sky-200' : 'bg-gray-100',
             ]"
         >
           <p
