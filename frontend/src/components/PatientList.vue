@@ -359,3 +359,24 @@ const table = useVueTable({
     @close="chatIsOpened = false"
   />
 </template>
+
+<style scoped>
+.status-circle {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+.status-blue {
+  background-color: #417cda;
+}
+.status-yellow {
+  background-color: #fcc858;
+}
+.status-orange {
+  background-color: #fdba74;
+}
+.status-red {
+  background-color: #dc2626;
+}
+</style>
