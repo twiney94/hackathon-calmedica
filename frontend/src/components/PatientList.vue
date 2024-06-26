@@ -15,7 +15,12 @@ import {
   useVueTable,
 } from "@tanstack/vue-table";
 import { ArrowUpDown, ChevronDown, MessageSquare } from "lucide-vue-next";
-
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { h, ref, watch } from "vue";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -310,10 +315,18 @@ const table = useVueTable({
               :data-state="row.getIsSelected() && 'selected'"
             >
               <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id">
-                <FlexRender
-                  :render="cell.column.columnDef.cell"
-                  :props="cell.getContext()"
-                />
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger
+                      ><FlexRender
+                        :render="cell.column.columnDef.cell"
+                        :props="cell.getContext()"
+                    /></TooltipTrigger>
+                    <TooltipContent v-if="cell.column.id === 'status'">
+                      <p>Status justification</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </TableCell>
             </TableRow>
           </template>
