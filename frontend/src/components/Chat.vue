@@ -57,14 +57,11 @@ async function addMessage() {
   }
 
   if(messageInput.value.trim() !== '') {
-    const dateTime = new Date();
-    const formatDateTime = `${dateTime.getDate()}-${dateTime.getMonth() + 1}-${dateTime.getFullYear()} ${dateTime.getHours()}:${dateTime.getMinutes()}`;
-
     props.messages.push({
       id: props.messages.length + 1,
       text: messageInput.value,
       sender: 'user',
-      metadata: formatDateTime
+      metadata: formatDateTime()
     })
 
     await scrollToLastMessage('smooth');
@@ -78,8 +75,6 @@ function addAudio() {
   const attachedFile = document.querySelector('#fileInput') as HTMLInputElement;
 
   if(attachedFile && attachedFile.files && attachedFile.files.length > 0) {
-    const dateTime = new Date();
-    const formatDateTime = `${dateTime.getDate()}-${dateTime.getMonth() + 1}-${dateTime.getFullYear()} ${dateTime.getHours()}:${dateTime.getMinutes()}`;
     const file = attachedFile.files[0];
     const reader = new FileReader();
 
@@ -88,7 +83,7 @@ function addAudio() {
         id: props.messages.length + 1,
         audio: reader.result as string,
         sender: 'user',
-        metadata: formatDateTime
+        metadata: formatDateTime()
       })
 
       scrollToLastMessage('smooth');
@@ -98,6 +93,21 @@ function addAudio() {
 
     attachedFile.value = '';
   }
+}
+
+function formatDateTime() {
+  const dateTime = new Date();
+  const day = formatDateTimeValue(dateTime.getDate());
+  const month = formatDateTimeValue(dateTime.getMonth() + 1);
+  const year = dateTime.getFullYear();
+  const hours = formatDateTimeValue(dateTime.getHours());
+  const minutes = formatDateTimeValue(dateTime.getMinutes());
+
+  function formatDateTimeValue(value: number) {
+    return value < 10 ? `0${value}` : value;
+  }
+
+  return `${day}-${month}-${year} ${hours}:${minutes}`;
 }
 </script>
 

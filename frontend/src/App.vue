@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import NavBar from "@/components/NavBar.vue";
 import PatientList from "@/components/PatientList.vue";
-import { Button } from "@/components/ui/button";
-import CalmedicaLogo from "@/assets/calmedica-flat.png";
 import Chat from "@/components/Chat.vue";
 import {ref} from "vue";
 
@@ -51,4 +49,5 @@ const messages = ref([
         :messages="messages"
         @close="chatIsOpened = false"
     />
+  </div>
 </template>
