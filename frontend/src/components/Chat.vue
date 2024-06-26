@@ -80,7 +80,7 @@ function addAudio() {
         id: props.messages.length + 1,
         audio: reader.result as string,
         sender: 'user',
-        metadata: `Orange - Reçu - ${formatDateTime}`
+        metadata: formatDateTime
       })
 
       scrollToLastMessage('smooth');
