@@ -2,7 +2,10 @@ package main
 
 import (
 	"backend/config"
+	"backend/models"
 	"backend/routes"
+	"github.com/google/uuid"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -11,6 +14,7 @@ func init() {
 	config.ConnectToDb()
 	config.SyncDatabase()
 	config.LoadEnvVariables()
+	createFixtures()
 }
 
 func main() {
@@ -21,6 +25,7 @@ func main() {
 
 	// Register routes
 	routes.SetupUserRoutes(r, db)
+	routes.RegisterPatientRoutes(r)
 
 	// Start server
 	err := r.Run(":8080")
@@ -28,4 +33,29 @@ func main() {
 		panic(err)
 	}
 
+}
+
+func createFixtures() {
+	now := time.Now() // Capture du moment actuel pour CreatedAt et UpdatedAt
+	patients := []models.Patient{
+		{
+			UUID:      uuid.New().String(),
+			CreatedAt: now,
+			UpdatedAt: now,
+			Status:    "bleu",
+			Phone:     "1234567897",
+		},
+		{
+			UUID:      uuid.New().String(),
+			CreatedAt: now,
+			UpdatedAt: now,
+			Status:    "bleu",
+			Phone:     "1234543216",
+		},
+		// Ajoutez d'autres patients si nécessaire
+	}
+
+	for _, patient := range patients {
+		config.DB.Create(&patient) // Création de l'entrée en base de données
+	}
 }
