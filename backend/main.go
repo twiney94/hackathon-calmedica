@@ -1,8 +1,9 @@
-package backend
+package main
 
 import (
 	"backend/config"
 	"backend/routes"
+
 	"github.com/gin-gonic/gin"
 )
 
