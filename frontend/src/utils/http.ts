@@ -1,8 +1,5 @@
-import { config } from "dotenv";
-
-config();
-
-const API_BASE_URL = process.env.API_BASE_URL as string;
+const env = import.meta.env;
+const API_BASE_URL = env.VITE_API_BASE_URL as string;
 
 export const performHttpCall = async (
   path: string,
@@ -30,11 +27,6 @@ export const performHttpCall = async (
     if (!response.ok) {
       const errorResponse = await response.json();
       throw new Error(errorResponse.message || response.statusText);
-    }
-
-    if (file) {
-      const blob = await response.blob();
-      return blob;
     }
 
     const data = await response.json();

@@ -2,6 +2,7 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { nextTick, onMounted, PropType, watch } from "vue";
+import { performHttpCall } from "@/utils/http";
 
 interface Message {
   id: number;
@@ -71,18 +72,18 @@ async function addMessage() {
     await scrollToLastMessage("smooth");
     messageInput.value = "";
   } else {
-    addAudio();
+    await addAudio();
   }
 }
 
-function addAudio() {
+async function addAudio() {
   const attachedFile = document.querySelector("#fileInput") as HTMLInputElement;
 
   if (attachedFile && attachedFile.files && attachedFile.files.length > 0) {
     const file = attachedFile.files[0];
     const reader = new FileReader();
 
-    reader.onload = () => {
+    reader.onload = async () => {
       props.messages.push({
         id: props.messages.length + 1,
         audio: reader.result as string,
@@ -90,7 +91,12 @@ function addAudio() {
         metadata: formatDateTime(),
       });
 
-      scrollToLastMessage("smooth");
+      await scrollToLastMessage("smooth");
+
+      const formData = new FormData();
+      formData.append("file", file);
+
+      await performHttpCall('/whisper', 'POST', formData, true)
     };
 
     reader.readAsDataURL(file);
@@ -186,7 +192,7 @@ function formatDateTime() {
           type="file"
           id="fileInput"
           class="hidden"
-          accept=".mp3"
+          accept=".mp3, .wav"
           @change="addAudio"
         />
         <label for="fileInput">
