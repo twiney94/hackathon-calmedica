@@ -55,26 +55,25 @@ func main() {
 }
 
 func createFixtures() {
-	now := time.Now() // Capture du moment actuel pour CreatedAt et UpdatedAt
+	now := time.Now()
 	patients := []models.Patient{
 		{
 			UUID:      uuid.New().String(),
 			CreatedAt: now,
 			UpdatedAt: now,
-			Status:    "bleu",
-			Phone:     "1234567897",
+			Status:    "grey",
+			Phone:     "+33601234567",
 		},
 		{
 			UUID:      uuid.New().String(),
 			CreatedAt: now,
 			UpdatedAt: now,
-			Status:    "bleu",
-			Phone:     "1234543216",
+			Status:    "grey",
+			Phone:     "+33701234599",
 		},
-		// Ajoutez d'autres patients si nécessaire
 	}
 
 	for _, patient := range patients {
-		config.DB.Create(&patient) // Création de l'entrée en base de données
+		config.DB.Create(&patient)
 	}
 }
