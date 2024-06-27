@@ -86,6 +86,7 @@ async function addAudio() {
     reader.onload = async () => {
       props.messages.push({
         id: props.messages.length + 1,
+        text: 'En cours d\'analyse par l\'IA ...',
         audio: reader.result as string,
         sender: "user",
         metadata: formatDateTime(),
@@ -97,6 +98,7 @@ async function addAudio() {
       formData.append("file", file);
 
       await performHttpCall('/whisper', 'POST', formData, true)
+      props.messages[props.messages.length - 1].text = 'Analyse terminée';
     };
 
     reader.readAsDataURL(file);
@@ -173,10 +175,10 @@ function formatDateTime() {
             sender === 'user' ? 'bg-sky-200' : 'bg-gray-100',
           ]"
         >
+          <audio :src="audio" controls v-if="audio" />
           <p class="text-lg" v-if="text">
             {{ text }}
           </p>
-          <audio :src="audio" controls v-if="audio" />
         </div>
         <span
           :class="['text-base', sender === 'user' ? 'mr-2 text-right' : 'ml-2']"
