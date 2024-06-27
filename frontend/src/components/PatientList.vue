@@ -1,3 +1,28 @@
+<style scoped>
+.status-circle {
+  display: inline-block;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  margin-right: 0.5rem;
+}
+.status-blue {
+  background-color: #417cda;
+}
+.status-yellow {
+  background-color: #fcc858;
+}
+.status-orange {
+  background-color: #fdba74;
+}
+.status-red {
+  background-color: #dc2626;
+}
+.status-grey {
+  background-color: #d1d5db;
+}
+</style>
+
 <script setup lang="ts">
 import Chat from "@/components/Chat.vue";
 import type {
@@ -14,14 +39,20 @@ import {
   getSortedRowModel,
   useVueTable,
 } from "@tanstack/vue-table";
-import { ArrowUpDown, ChevronDown, MessageSquare } from "lucide-vue-next";
+import {
+  ArrowUpDown,
+  ChevronDown,
+  MessageSquare,
+  Play,
+  Pause,
+} from "lucide-vue-next";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { h, ref, watch } from "vue";
+import { h, ref, watch, onMounted } from "vue";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -47,41 +78,21 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { valueUpdater } from "@/utils/utils";
+import { performHttpCall } from "@/utils/http";
 
 export interface Patient {
-  id: string;
+  uuid: string;
   status: "grey" | "blue" | "yellow" | "orange" | "red";
   phone: string;
   action?: "message";
 }
 
-const data: Patient[] = [
-  {
-    id: "m5gr84i9",
-    status: "grey",
-    phone: "+33 7 54 12 36 98",
-  },
-  {
-    id: "3u1reuv4",
-    status: "yellow",
-    phone: "+33 1 24 87 54 12",
-  },
-  {
-    id: "derv1ws0",
-    status: "orange",
-    phone: "+33 9 87 54 12 36",
-  },
-  {
-    id: "5kma53ae",
-    status: "red",
-    phone: "+33 6 54 12 36 98",
-  },
-  {
-    id: "bhqecj4p",
-    status: "orange",
-    phone: "+33 7 54 12 36 98",
-  },
-];
+const data = ref<Patient[]>([]);
+
+onMounted(async () => {
+  const response = await performHttpCall<Patient[]>("patients", "GET");
+  data.value = response.patients;
+});
 
 const chatIsOpened = ref(false);
 const messages = ref([
@@ -154,9 +165,31 @@ const columns: ColumnDef<Patient>[] = [
     },
     cell: ({ row }) => {
       const status = row.getValue("status");
-      return h("div", {
-        class: `status-circle status-${status}`,
-      });
+      return h("div", { class: "flex items-center gap-2" }, [
+        h("div", { class: "flex items-center gap-2" }, [
+          h("div", {
+            class: `bg-${status}-500 rounded-full w-6 h-6 mr-4`,
+          }),
+        ]),
+        h(
+          Button,
+          {
+            variant: "outline",
+            size: "icon",
+            onClick: () => console.log("Play clicked"),
+          },
+          () => h(Play, { class: "w-4 h-4" })
+        ),
+        h(
+          Button,
+          {
+            variant: "outline",
+            size: "icon",
+            onClick: () => console.log("Pause clicked"),
+          },
+          () => h(Pause, { class: "w-4 h-4" })
+        ),
+      ]);
     },
     sortingFn: (a, b) => {
       return (
@@ -267,6 +300,8 @@ const table = useVueTable({
           <SelectItem value="blue">Bleu</SelectItem>
         </SelectContent>
       </Select>
+      <Button variant="outline" @click="refreshData"> Refresh </Button>
+      {{ data }}
       <DropdownMenu>
         <DropdownMenuTrigger as-child>
           <Button variant="outline" class="ml-auto">
@@ -293,7 +328,7 @@ const table = useVueTable({
       </DropdownMenu>
     </div>
     <div class="rounded-md border">
-      <UiTable>
+      <UiTable :key="data">
         <TableHeader>
           <TableRow
             v-for="headerGroup in table.getHeaderGroups()"
@@ -373,28 +408,3 @@ const table = useVueTable({
     @close="chatIsOpened = false"
   />
 </template>
-
-<style scoped>
-.status-circle {
-  display: inline-block;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-}
-.status-blue {
-  background-color: #417cda;
-}
-.status-yellow {
-  background-color: #fcc858;
-}
-.status-orange {
-  background-color: #fdba74;
-}
-.status-red {
-  background-color: #dc2626;
-}
-
-.status-grey {
-  background-color: #d1d5db;
-}
-</style>
