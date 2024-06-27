@@ -7,6 +7,7 @@ import (
 )
 
 func SetupMessageRoutes(r *gin.Engine, db *gorm.DB) {
-	r.POST("/messages", handlers.CreateMessage)
-	r.GET("/messages", handlers.GetMessages)
+	r.GET("/messages/:patientId", handlers.GetMessageByPatientId(db))
+	r.POST("/messages", handlers.CreateMessage(db))
+	r.GET("/messages", handlers.GetMessages(db))
 }

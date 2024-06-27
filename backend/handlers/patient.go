@@ -18,7 +18,12 @@ func GetPatientByID(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"patient": patient})
+	var patientDTO models.PatientDTO
+	patientDTO.UUID = patient.UUID
+	patientDTO.Status = patient.Status
+	patientDTO.Phone = patient.Phone
+
+	c.JSON(http.StatusOK, gin.H{"patient": patientDTO})
 }
 
 // GetAllPatients récupère tous les patients et ne renvoie que les champs UUID, Status et Phone
@@ -33,12 +38,12 @@ func GetAllPatients(c *gin.Context) {
 	var patientDTOs []models.PatientDTO
 	for _, patient := range patients {
 		patientDTOs = append(patientDTOs, models.PatientDTO{
-			UUID:      patient.UUID,
-			Status:    patient.Status,
-			Phone:     patient.Phone,
-			CreatedAt: patient.CreatedAt,
-			UpdatedAt: patient.UpdatedAt,
-			DeletedAt: patient.DeletedAt,
+			UUID:   patient.UUID,
+			Status: patient.Status,
+			Phone:  patient.Phone,
+			//CreatedAt: patient.CreatedAt,
+			//UpdatedAt: patient.UpdatedAt,
+			//DeletedAt: patient.DeletedAt,
 		})
 	}
 
