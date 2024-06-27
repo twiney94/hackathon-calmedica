@@ -2,6 +2,7 @@ from flask import Flask, abort, request
 from tempfile import NamedTemporaryFile
 import whisper
 import torch
+from flask_cors import CORS
 
 # Check if NVIDIA GPU is available
 torch.cuda.is_available()
@@ -11,11 +12,11 @@ DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 model = whisper.load_model("base", device=DEVICE)
 
 app = Flask(__name__)
+CORS(app)  # Activer CORS pour toutes les routes
 
 @app.route("/")
 def hello():
     return "Whisper is running"
-
 
 @app.route('/whisper', methods=['POST'])
 def handler():
@@ -43,3 +44,6 @@ def handler():
         })
 
     return {'results': results}
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)
