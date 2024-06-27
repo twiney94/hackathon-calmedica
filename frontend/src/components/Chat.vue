@@ -180,8 +180,8 @@ function formatDateTime() {
           ]"
         >
           <audio :src="audio" controls v-if="audio" />
-          <div class="flex items-center gap-2" v-if="text">
-            <p class="text-lg" v-if="text">
+          <div class="chat__text-container flex items-center gap-2" v-if="text">
+            <p class="chat__text text-lg" v-if="text">
               {{ text }}
             </p>
             <Loader2
@@ -258,5 +258,9 @@ function formatDateTime() {
   top: 0;
   right: calc(40px + 0.5rem);
   height: 100%;
+}
+
+audio + .chat__text-container .chat__text {
+  margin-left: 1rem;
 }
 </style>
