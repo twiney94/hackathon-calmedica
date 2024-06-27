@@ -1,28 +1,3 @@
-<style scoped>
-.status-circle {
-  display: inline-block;
-  width: 1.5rem;
-  height: 1.5rem;
-  border-radius: 50%;
-  margin-right: 0.5rem;
-}
-.status-blue {
-  background-color: #417cda;
-}
-.status-yellow {
-  background-color: #fcc858;
-}
-.status-orange {
-  background-color: #fdba74;
-}
-.status-red {
-  background-color: #dc2626;
-}
-.status-grey {
-  background-color: #d1d5db;
-}
-</style>
-
 <script setup lang="ts">
 import Chat from "@/components/Chat.vue";
 import type {
@@ -89,46 +64,18 @@ export interface Patient {
 
 const data = ref<Patient[]>([]);
 
-onMounted(async () => {
+async function fetchData() {
   const response = await performHttpCall<Patient[]>("patients", "GET");
   data.value = response.patients;
-});
+}
 
-const chatIsOpened = ref(false);
-const messages = ref([
-  {
-    id: 1,
-    text: "Lorem ipsum dolor sit amet consectetur. Faucibus nibh pulvinar erat aliquam diam.",
-    sender: "bot",
-    metadata: "26-04-2024 14:32",
-  },
-  {
-    id: 2,
-    text: "Lorem ipsum dolor sit amet consectetur. Faucibus nibh pulvinar erat aliquam diam.",
-    sender: "user",
-    metadata: "26-04-2024 14:33",
-  },
-  {
-    id: 3,
-    text: "Lorem ipsum dolor sit amet consectetur. Faucibus nibh pulvinar erat aliquam diam.",
-    sender: "bot",
-    metadata: "26-04-2024 14:34",
-  },
-  {
-    id: 4,
-    text: "Lorem ipsum dolor sit amet consectetur. Faucibus nibh pulvinar erat aliquam diam.",
-    sender: "user",
-    metadata: "26-04-2024 14:35",
-  },
-  {
-    id: 5,
-    text: "Lorem ipsum dolor sit amet consectetur. Faucibus nibh pulvinar erat aliquam diam.",
-    sender: "bot",
-    metadata: "26-04-2024 14:36",
-  },
-]);
+const showTable = ref(false);
 
-const statusOrder = ["red", "orange", "yellow", "blue"];
+const sorting = ref<SortingState>([]);
+const columnFilters = ref<ColumnFiltersState>([]);
+const columnVisibility = ref<VisibilityState>({});
+const rowSelection = ref({});
+const statusFilter = ref("all");
 
 const columns: ColumnDef<Patient>[] = [
   {
@@ -166,11 +113,9 @@ const columns: ColumnDef<Patient>[] = [
     cell: ({ row }) => {
       const status = row.getValue("status");
       return h("div", { class: "flex items-center gap-2" }, [
-        h("div", { class: "flex items-center gap-2" }, [
-          h("div", {
-            class: `bg-${status}-500 rounded-full w-6 h-6 mr-4`,
-          }),
-        ]),
+        h("div", {
+          class: `status-circle status-${status}`,
+        }),
         h(
           Button,
           {
@@ -232,50 +177,117 @@ const columns: ColumnDef<Patient>[] = [
   },
 ];
 
-const sorting = ref<SortingState>([]);
-const columnFilters = ref<ColumnFiltersState>([]);
-const columnVisibility = ref<VisibilityState>({});
-const rowSelection = ref({});
-const statusFilter = ref("all");
-
-watch(statusFilter, () => {
-  table.setColumnFilters([
-    {
-      id: "status",
-      value: statusFilter.value === "all" ? undefined : statusFilter.value,
+const table = ref(
+  useVueTable({
+    data: data.value,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    onSortingChange: (updaterOrValue) => valueUpdater(updaterOrValue, sorting),
+    onColumnFiltersChange: (updaterOrValue) =>
+      valueUpdater(updaterOrValue, columnFilters),
+    onColumnVisibilityChange: (updaterOrValue) =>
+      valueUpdater(updaterOrValue, columnVisibility),
+    onRowSelectionChange: (updaterOrValue) =>
+      valueUpdater(updaterOrValue, rowSelection),
+    state: {
+      get sorting() {
+        return sorting.value;
+      },
+      get columnFilters() {
+        return columnFilters.value;
+      },
+      get columnVisibility() {
+        return columnVisibility.value;
+      },
+      get rowSelection() {
+        return rowSelection.value;
+      },
+      set rowSelection(value) {
+        rowSelection.value = value;
+      },
     },
-  ]);
+  })
+);
+
+onMounted(async () => {
+  await fetchData();
+  await new Promise((resolve) => setTimeout(resolve, 2000));
+  table.value = useVueTable({
+    data: data.value,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    onSortingChange: (updaterOrValue) => valueUpdater(updaterOrValue, sorting),
+    onColumnFiltersChange: (updaterOrValue) =>
+      valueUpdater(updaterOrValue, columnFilters),
+    onColumnVisibilityChange: (updaterOrValue) =>
+      valueUpdater(updaterOrValue, columnVisibility),
+    onRowSelectionChange: (updaterOrValue) =>
+      valueUpdater(updaterOrValue, rowSelection),
+    state: {
+      get sorting() {
+        return sorting.value;
+      },
+      get columnFilters() {
+        return columnFilters.value;
+      },
+      get columnVisibility() {
+        return columnVisibility.value;
+      },
+      get rowSelection() {
+        return rowSelection.value;
+      },
+      set rowSelection(value) {
+        rowSelection.value = value;
+      },
+    },
+  });
+  showTable.value = true;
 });
 
-const table = useVueTable({
-  data,
-  columns,
-  getCoreRowModel: getCoreRowModel(),
-  getPaginationRowModel: getPaginationRowModel(),
-  getSortedRowModel: getSortedRowModel(),
-  getFilteredRowModel: getFilteredRowModel(),
-  onSortingChange: (updaterOrValue) => valueUpdater(updaterOrValue, sorting),
-  onColumnFiltersChange: (updaterOrValue) =>
-    valueUpdater(updaterOrValue, columnFilters),
-  onColumnVisibilityChange: (updaterOrValue) =>
-    valueUpdater(updaterOrValue, columnVisibility),
-  onRowSelectionChange: (updaterOrValue) =>
-    valueUpdater(updaterOrValue, rowSelection),
-  state: {
-    get sorting() {
-      return sorting.value;
-    },
-    get columnFilters() {
-      return columnFilters.value;
-    },
-    get columnVisibility() {
-      return columnVisibility.value;
-    },
-    get rowSelection() {
-      return rowSelection.value;
-    },
+const chatIsOpened = ref(false);
+const messages = ref([
+  {
+    id: 1,
+    text: "Lorem ipsum dolor sit amet consectetur. Faucibus nibh pulvinar erat aliquam diam.",
+    sender: "bot",
+    metadata: "26-04-2024 14:32",
   },
-});
+  {
+    id: 2,
+    text: "Lorem ipsum dolor sit amet consectetur. Faucibus nibh pulvinar erat aliquam diam.",
+    sender: "user",
+    metadata: "26-04-2024 14:33",
+  },
+  {
+    id: 3,
+    text: "Lorem ipsum dolor sit amet consectetur. Faucibus nibh pulvinar erat aliquam diam.",
+    sender: "bot",
+    metadata: "26-04-2024 14:34",
+  },
+  {
+    id: 4,
+    text: "Lorem ipsum dolor sit amet consectetur. Faucibus nibh pulvinar erat aliquam diam.",
+    sender: "user",
+    metadata: "26-04-2024 14:35",
+  },
+  {
+    id: 5,
+    text: "Lorem ipsum dolor sit amet consectetur. Faucibus nibh pulvinar erat aliquam diam.",
+    sender: "bot",
+    metadata: "26-04-2024 14:36",
+  },
+]);
+
+const statusOrder = ["red", "orange", "yellow", "blue"];
+const refreshData = async () => {
+  await fetchData();
+};
 </script>
 
 <template>
@@ -284,7 +296,7 @@ const table = useVueTable({
       <Input
         class="max-w-sm"
         placeholder="Filtrer les numéros de téléphone..."
-        :model-value="table.getColumn('phone')?.getFilterValue() as string"
+        :model-value="`${table.getColumn('phone')?.getFilterValue() as string}`"
         @update:model-value="table.getColumn('phone')?.setFilterValue($event)"
       />
       <Select v-model="statusFilter">
@@ -300,8 +312,8 @@ const table = useVueTable({
           <SelectItem value="blue">Bleu</SelectItem>
         </SelectContent>
       </Select>
-      <Button variant="outline" @click="refreshData"> Refresh </Button>
       {{ data }}
+      <Button variant="outline" @click="refreshData"> Refresh </Button>
       <DropdownMenu>
         <DropdownMenuTrigger as-child>
           <Button variant="outline" class="ml-auto">
@@ -328,7 +340,7 @@ const table = useVueTable({
       </DropdownMenu>
     </div>
     <div class="rounded-md border">
-      <UiTable :key="data">
+      <UiTable>
         <TableHeader>
           <TableRow
             v-for="headerGroup in table.getHeaderGroups()"
