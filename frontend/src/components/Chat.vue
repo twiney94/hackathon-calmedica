@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { nextTick, onMounted, PropType, watch } from "vue";
+import { Loader2 } from 'lucide-vue-next';
+import { nextTick, onMounted, PropType, watch, ref } from "vue";
 import { performHttpCall } from "@/utils/http";
 
 interface Message {
@@ -26,6 +27,7 @@ const props = defineProps({
     required: true,
   },
 });
+const loading = ref(false);
 
 defineEmits(["close"]);
 
@@ -84,6 +86,7 @@ async function addAudio() {
     const reader = new FileReader();
 
     reader.onload = async () => {
+      loading.value = true;
       props.messages.push({
         id: props.messages.length + 1,
         text: 'En cours d\'analyse par l\'IA ...',
@@ -99,6 +102,7 @@ async function addAudio() {
 
       await performHttpCall('/whisper', 'POST', formData, true)
       props.messages[props.messages.length - 1].text = 'Analyse terminée';
+      loading.value = false;
     };
 
     reader.readAsDataURL(file);
@@ -176,9 +180,15 @@ function formatDateTime() {
           ]"
         >
           <audio :src="audio" controls v-if="audio" />
-          <p class="text-lg" v-if="text">
-            {{ text }}
-          </p>
+          <div class="flex items-center gap-2" v-if="text">
+            <p class="text-lg" v-if="text">
+              {{ text }}
+            </p>
+            <Loader2
+                v-show="loading"
+                class="w-4 h-4 mr-2 animate-spin"
+            />
+          </div>
         </div>
         <span
           :class="['text-base', sender === 'user' ? 'mr-2 text-right' : 'ml-2']"
