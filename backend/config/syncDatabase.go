@@ -8,6 +8,8 @@ import (
 func SyncDatabase() {
 	var allModels = []interface{}{
 		&models.User{},
+		&models.Message{},
+		&models.Patient{},
 	}
 
 	err := DB.AutoMigrate(allModels...)

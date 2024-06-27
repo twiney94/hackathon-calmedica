@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket Chat</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        #chat {
+            border: 1px solid #ccc;
+            width: 80%;
+            max-width: 600px;
+            height: 400px;
+            overflow-y: scroll;
+            background-color: #fff;
+            padding: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 10px;
+        }
+        .message {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 10px;
+            max-width: 70%;
+            word-wrap: break-word;
+        }
+        .sender {
+            background-color: #dcf8c6;
+            align-self: flex-start;
+        }
+        .receiver {
+            background-color: #f1f1f1;
+            align-self: flex-end;
+        }
+        #inputContainer {
+            display: flex;
+            justify-content: center;
+            width: 80%;
+            max-width: 600px;
+        }
+        #messageInput {
+            width: 80%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+        button {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+<h1>WebSocket Chat</h1>
+<div id="chat"></div>
+<div id="inputContainer">
+    <input type="text" id="messageInput" placeholder="Type a message..." />
+    <button onclick="sendMessage()">Send</button>
+</div>
+
+<script type="text/javascript">
+    const userId = 1; // Example user ID
+    let socket = new WebSocket("ws://localhost:8080/ws");
+
+    socket.onmessage = function(event) {
+        let msg = JSON.parse(event.data);
+        displayMessage(msg);
+    };
+
+    function sendMessage() {
+        let input = document.getElementById("messageInput");
+        let message = {
+            sender_id: userId, // Example sender ID
+            receiver_id: 2, // Example receiver ID
+            content: input.value
+        };
+        socket.send(JSON.stringify(message));
+        input.value = '';
+    }
+
+    function displayMessage(msg) {
+        let chat = document.getElementById("chat");
+        let messageDiv = document.createElement("div");
+        messageDiv.textContent = msg.content;
+        messageDiv.className = "message " + (msg.sender_id === userId ? "sender" : "receiver");
+        chat.appendChild(messageDiv);
+        chat.scrollTop = chat.scrollHeight; // Scroll to the bottom
+    }
+</script>
+</body>
+</html>
