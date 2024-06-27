@@ -22,11 +22,18 @@ services:
       dockerfile: Dockerfile
     ports:
       - "5000:5000"
-    depends_on:
-      - db
     volumes:
       - whisper-data:/python-docker
+
+  ollama:
+    container_name: ollama
+    image: ollama/ollama:latest
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-data:/root/.ollama
 
 volumes:
   mysql-data: {}
   whisper-data: {}
+  ollama-data: {}
