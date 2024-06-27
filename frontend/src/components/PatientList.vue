@@ -48,14 +48,14 @@ import {
 } from "@/components/ui/select";
 import { valueUpdater } from "@/utils/utils";
 
-export interface Payment {
+export interface Patient {
   id: string;
   status: "grey" | "blue" | "yellow" | "orange" | "red";
   phone: string;
   action?: "message";
 }
 
-const data: Payment[] = [
+const data: Patient[] = [
   {
     id: "m5gr84i9",
     status: "grey",
@@ -119,7 +119,7 @@ const messages = ref([
 
 const statusOrder = ["red", "orange", "yellow", "blue"];
 
-const columns: ColumnDef<Payment>[] = [
+const columns: ColumnDef<Patient>[] = [
   {
     id: "select",
     header: ({ table }) =>
