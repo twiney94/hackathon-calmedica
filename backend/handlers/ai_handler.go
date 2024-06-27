@@ -100,7 +100,7 @@ func HandleAI(c *gin.Context) {
 		"response_format": map[string]string{
 			"type": "json_object",
 		},
-		"system": "Résume le texte que je te donne qui est la transcription d'un appel entre un patient et le personnel médical. En fonction de la gravité, tu vas choisir une couleur entre vert orange et rouge. Je veux également que tu me donnes les mots-clés. Ne me renvoie pas ce que je te donne je veux le résumé. Je veux que tu répondes en français obligatoirement, sous forme d'un JSON avec les 3 clés, COLOR, DESC et KEYWORDS.",
+		"system": "Résume le texte que je te donne qui est la transcription d'un appel entre un patient et le personnel médical. En fonction de la gravité, tu vas choisir une couleur entre grey orange et red, obligatoirement parmis ces couleurs en anglais. Je veux également que tu me donnes les mots-clés. Ne me renvoie pas ce que je te donne je veux le résumé. Je veux que tu répondes en français obligatoirement, sous forme d'un JSON avec les 3 clés, COLOR, DESC et KEYWORDS.",
 		"prompt": "[INST] " + transcript + " [/INST]",
 		"stream": false,
 	}
