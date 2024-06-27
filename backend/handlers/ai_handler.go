@@ -169,5 +169,6 @@ func HandleAI(c *gin.Context) {
 		return
 	}
 
+	log.Printf("Réponse finale : %s", finalResponseWithID)
 	c.Data(newResp.StatusCode, "application/json", finalResponseWithID)
 }

@@ -7,6 +7,7 @@ import (
 	"backend/routes"
 	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/google/uuid"
 
 	"github.com/gin-gonic/gin"
@@ -24,6 +25,15 @@ func main() {
 	db := config.DB
 
 	r := gin.Default()
+
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:5173"},
+		AllowMethods:     []string{"POST", "GET", "OPTIONS", "PUT", "DELETE"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	}))
 
 	// Register routes
 	routes.SetupUserRoutes(r, db)
