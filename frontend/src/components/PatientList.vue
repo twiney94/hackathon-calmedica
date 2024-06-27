@@ -50,7 +50,7 @@ import { valueUpdater } from "@/utils/utils";
 
 export interface Payment {
   id: string;
-  status: "blue" | "yellow" | "orange" | "red";
+  status: "grey" | "blue" | "yellow" | "orange" | "red";
   phone: string;
   action?: "message";
 }
@@ -58,7 +58,7 @@ export interface Payment {
 const data: Payment[] = [
   {
     id: "m5gr84i9",
-    status: "blue",
+    status: "grey",
     phone: "+33 7 54 12 36 98",
   },
   {
@@ -260,10 +260,11 @@ const table = useVueTable({
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">Status</SelectItem>
-          <SelectItem value="red">Red</SelectItem>
+          <SelectItem value="grey">Gris</SelectItem>
+          <SelectItem value="red">Rouge</SelectItem>
           <SelectItem value="orange">Orange</SelectItem>
-          <SelectItem value="yellow">Yellow</SelectItem>
-          <SelectItem value="blue">Blue</SelectItem>
+          <SelectItem value="yellow">Jaune</SelectItem>
+          <SelectItem value="blue">Bleu</SelectItem>
         </SelectContent>
       </Select>
       <DropdownMenu>
@@ -391,5 +392,9 @@ const table = useVueTable({
 }
 .status-red {
   background-color: #dc2626;
+}
+
+.status-grey {
+  background-color: #d1d5db;
 }
 </style>
