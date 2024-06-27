@@ -5,8 +5,9 @@ import (
 	"backend/handlers"
 	"backend/models"
 	"backend/routes"
-	"github.com/google/uuid"
 	"time"
+
+	"github.com/google/uuid"
 
 	"github.com/gin-gonic/gin"
 )
@@ -33,6 +34,9 @@ func main() {
 
 	// Register chat routes
 	routes.SetupChatRoutes(r)
+
+	// Register AI routes
+	routes.SetupAIRoutes(r)
 
 	// Start handling messages
 	go handlers.HandleMessages()
