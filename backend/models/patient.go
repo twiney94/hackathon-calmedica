@@ -12,10 +12,10 @@ type Patient struct {
 }
 
 type PatientDTO struct {
-	UUID      string     `json:"uuid"`
-	Status    string     `json:"status"`
-	Phone     string     `json:"phone"`
-	CreatedAt time.Time  `json:"created_at"`
-	UpdatedAt time.Time  `json:"updated_at"`
-	DeletedAt *time.Time `json:"deleted_at,omitempty"`
+	UUID   string `json:"uuid"`
+	Status string `json:"status"`
+	Phone  string `json:"phone"`
+	//CreatedAt time.Time  `json:"created_at"`
+	//UpdatedAt time.Time  `json:"updated_at"`
+	//DeletedAt *time.Time `json:"deleted_at,omitempty"`
 }
