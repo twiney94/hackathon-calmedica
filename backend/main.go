@@ -5,8 +5,10 @@ import (
 	"backend/handlers"
 	"backend/models"
 	"backend/routes"
-	"github.com/google/uuid"
 	"time"
+
+	"github.com/gin-contrib/cors"
+	"github.com/google/uuid"
 
 	"github.com/gin-gonic/gin"
 )
@@ -24,6 +26,15 @@ func main() {
 
 	r := gin.Default()
 
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:5173"},
+		AllowMethods:     []string{"POST", "GET", "OPTIONS", "PUT", "DELETE"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	}))
+
 	// Register routes
 	routes.SetupUserRoutes(r, db)
 	routes.RegisterPatientRoutes(r)
@@ -33,6 +44,9 @@ func main() {
 
 	// Register chat routes
 	routes.SetupChatRoutes(r)
+
+	// Register AI routes
+	routes.SetupAIRoutes(r)
 
 	// Start handling messages
 	go handlers.HandleMessages()
