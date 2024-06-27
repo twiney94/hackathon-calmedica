@@ -4,10 +4,10 @@
     "paths": {
       "@/*": ["./src/*"]
     },
-    "outDir": "./dist", // Ensure outDir is set
-    "noEmit": false // Ensure noEmit is not set to true
+    "outDir": "./dist",
+    "noEmit": false
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue"],
   "files": [],
   "references": [
     {
