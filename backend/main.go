@@ -5,9 +5,8 @@ import (
 	"backend/handlers"
 	"backend/models"
 	"backend/routes"
-	"time"
-
 	"github.com/google/uuid"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -55,6 +54,10 @@ func createFixtures() {
 			UpdatedAt: now,
 			Status:    "grey",
 			Phone:     "+33601234567",
+			Keywords: []string{
+				"keyword1",
+				"keyword2",
+			},
 		},
 		{
 			UUID:      uuid.New().String(),
@@ -62,7 +65,12 @@ func createFixtures() {
 			UpdatedAt: now,
 			Status:    "grey",
 			Phone:     "+33701234599",
+			Keywords: []string{
+				"keyword3",
+				"keyword4",
+			},
 		},
+		// Ajoutez d'autres patients si nécessaire
 	}
 
 	for _, patient := range patients {
