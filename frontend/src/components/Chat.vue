@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { nextTick, onMounted, PropType, watch } from "vue";
+import { Loader2 } from 'lucide-vue-next';
+import { nextTick, onMounted, PropType, watch, ref } from "vue";
 import { performHttpCall } from "@/utils/http";
 
 interface Message {
@@ -26,6 +27,7 @@ const props = defineProps({
     required: true,
   },
 });
+const loading = ref(false);
 
 defineEmits(["close"]);
 
@@ -44,8 +46,13 @@ watch(props.messages, async () => {
   await scrollToLastMessage("smooth");
 });
 
-onMounted(async () => {
-  await scrollToLastMessage();
+onMounted(() => {
+  watch(() => props.isOpened, async (newVal, oldVal) => {
+    if (newVal) {
+      await nextTick();
+      await scrollToLastMessage();
+    }
+  });
 });
 
 async function addMessage() {
@@ -84,8 +91,10 @@ async function addAudio() {
     const reader = new FileReader();
 
     reader.onload = async () => {
+      loading.value = true;
       props.messages.push({
         id: props.messages.length + 1,
+        text: 'En cours d\'analyse par l\'IA ...',
         audio: reader.result as string,
         sender: "user",
         metadata: formatDateTime(),
@@ -97,6 +106,8 @@ async function addAudio() {
       formData.append("file", file);
 
       await performHttpCall('/whisper', 'POST', formData, true)
+      props.messages[props.messages.length - 1].text = 'Analyse terminée';
+      loading.value = false;
     };
 
     reader.readAsDataURL(file);
@@ -122,22 +133,11 @@ function formatDateTime() {
 </script>
 
 <template>
-  <Dialog>
-    <DialogTrigger> Edit Profile </DialogTrigger>
-    <DialogContent>
-      <DialogHeader>
-        <DialogTitle>Edit profile</DialogTitle>
-        <DialogDescription>
-          Make changes to your profile here. Click save when you're done.
-        </DialogDescription>
-      </DialogHeader>
-
-      <DialogFooter> Save changes </DialogFooter>
-    </DialogContent>
-  </Dialog>
   <div
-    class="chat flex flex-col gap-2.5 shadow-2xl bg-white p-5 rounded-lg"
-    v-show="isOpened"
+    :class="[
+        'chat flex flex-col gap-2.5 shadow-2xl bg-white p-5 rounded-lg',
+        { 'opened': isOpened }
+    ]"
   >
     <div class="flex justify-between">
       <p class="text-xl font-semibold truncate mr-2.5">{{ headInfo }}</p>
@@ -158,7 +158,7 @@ function formatDateTime() {
         </svg>
       </button>
     </div>
-    <ul class="flex flex-col flex-1 overflow-y-auto gap-3 shadow-inner">
+    <ul class="flex flex-col flex-1 overflow-y-auto gap-3 shadow-inner px-1.5 py-2">
       <li
         v-for="{ id, text, audio, sender, metadata } in messages"
         :key="id"
@@ -173,10 +173,16 @@ function formatDateTime() {
             sender === 'user' ? 'bg-sky-200' : 'bg-gray-100',
           ]"
         >
-          <p class="text-lg" v-if="text">
-            {{ text }}
-          </p>
           <audio :src="audio" controls v-if="audio" />
+          <div class="chat__text-container flex items-center gap-2" v-if="text">
+            <p class="chat__text text-lg" v-if="text">
+              {{ text }}
+            </p>
+            <Loader2
+                v-show="loading"
+                class="w-4 h-4 mr-2 animate-spin"
+            />
+          </div>
         </div>
         <span
           :class="['text-base', sender === 'user' ? 'mr-2 text-right' : 'ml-2']"
@@ -239,6 +245,12 @@ function formatDateTime() {
   right: 14px;
   bottom: 50px;
   width: 672px;
+  transform: translateX(calc(100% + 14px));
+  transition: transform 0.3s ease;
+}
+
+.chat.opened {
+  transform: translateX(0);
 }
 
 .attached-file {
@@ -246,5 +258,9 @@ function formatDateTime() {
   top: 0;
   right: calc(40px + 0.5rem);
   height: 100%;
+}
+
+audio + .chat__text-container .chat__text {
+  margin-left: 1rem;
 }
 </style>
