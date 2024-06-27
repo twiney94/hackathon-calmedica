@@ -46,8 +46,13 @@ watch(props.messages, async () => {
   await scrollToLastMessage("smooth");
 });
 
-onMounted(async () => {
-  await scrollToLastMessage();
+onMounted(() => {
+  watch(() => props.isOpened, async (newVal, oldVal) => {
+    if (newVal) {
+      await nextTick();
+      await scrollToLastMessage();
+    }
+  });
 });
 
 async function addMessage() {
@@ -128,19 +133,6 @@ function formatDateTime() {
 </script>
 
 <template>
-  <Dialog>
-    <DialogTrigger> Edit Profile </DialogTrigger>
-    <DialogContent>
-      <DialogHeader>
-        <DialogTitle>Edit profile</DialogTitle>
-        <DialogDescription>
-          Make changes to your profile here. Click save when you're done.
-        </DialogDescription>
-      </DialogHeader>
-
-      <DialogFooter> Save changes </DialogFooter>
-    </DialogContent>
-  </Dialog>
   <div
     class="chat flex flex-col gap-2.5 shadow-2xl bg-white p-5 rounded-lg"
     v-show="isOpened"
@@ -164,7 +156,7 @@ function formatDateTime() {
         </svg>
       </button>
     </div>
-    <ul class="flex flex-col flex-1 overflow-y-auto gap-3 shadow-inner">
+    <ul class="flex flex-col flex-1 overflow-y-auto gap-3 shadow-inner px-1.5 py-2">
       <li
         v-for="{ id, text, audio, sender, metadata } in messages"
         :key="id"
