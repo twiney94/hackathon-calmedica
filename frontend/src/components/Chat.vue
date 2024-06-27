@@ -134,8 +134,10 @@ function formatDateTime() {
 
 <template>
   <div
-    class="chat flex flex-col gap-2.5 shadow-2xl bg-white p-5 rounded-lg"
-    v-show="isOpened"
+    :class="[
+        'chat flex flex-col gap-2.5 shadow-2xl bg-white p-5 rounded-lg',
+        { 'opened': isOpened }
+    ]"
   >
     <div class="flex justify-between">
       <p class="text-xl font-semibold truncate mr-2.5">{{ headInfo }}</p>
@@ -243,6 +245,12 @@ function formatDateTime() {
   right: 14px;
   bottom: 50px;
   width: 672px;
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+}
+
+.chat.opened {
+  transform: translateX(0);
 }
 
 .attached-file {
