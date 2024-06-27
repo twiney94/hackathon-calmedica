@@ -245,7 +245,7 @@ function formatDateTime() {
   right: 14px;
   bottom: 50px;
   width: 672px;
-  transform: translateX(100%);
+  transform: translateX(calc(100% + 14px));
   transition: transform 0.3s ease;
 }
 
