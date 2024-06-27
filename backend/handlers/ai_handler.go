@@ -75,11 +75,68 @@ func HandleAI(c *gin.Context) {
 		return
 	}
 
-	// Réponse du serveur
-	if resp.StatusCode == http.StatusOK {
-		c.JSON(http.StatusOK, gin.H{"message": "Fichier traité avec succès", "response": decodedResponse})
-	} else {
-		log.Printf("Erreur lors du traitement du fichier, status code: %d, réponse: %s", resp.StatusCode, string(body))
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erreur lors du traitement du fichier", "status_code": resp.StatusCode, "response": decodedResponse})
+	// Extraire le transcript
+	transcripts, ok := decodedResponse["results"].([]interface{})
+	if !ok || len(transcripts) == 0 {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Aucun transcript trouvé dans la réponse"})
+		return
 	}
+
+	transcriptData, ok := transcripts[0].(map[string]interface{})
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Format du transcript invalide"})
+		return
+	}
+
+	transcript, ok := transcriptData["transcript"].(string)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Transcript non trouvé ou format invalide"})
+		return
+	}
+
+	// Construire le JSON pour la nouvelle requête
+	requestBody := map[string]interface{}{
+		"model": "mistral",
+		"response_format": map[string]string{
+			"type": "json_object",
+		},
+		"system": "Résume le texte que je te donne qui est la transcription d'un appel entre un patient et le personnel médical. En fonction de la gravité, tu vas choisir une couleur entre vert orange et rouge. Je veux également que tu me donnes les mots-clés. Ne me renvoie pas ce que je te donne je veux le résumé. Je veux que tu répondes en français obligatoirement, sous forme d'un JSON avec les 3 clés, COLOR, DESC et KEYWORDS.",
+		"prompt": "[INST] " + transcript + " [/INST]",
+		"stream": false,
+	}
+
+	requestJSON, err := json.Marshal(requestBody)
+	if err != nil {
+		log.Printf("Erreur lors de la création du JSON pour la nouvelle requête : %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erreur lors de la création du JSON pour la nouvelle requête"})
+		return
+	}
+
+	// Envoyer la nouvelle requête POST
+	newReq, err := http.NewRequest("POST", "http://localhost:11434/api/generate", bytes.NewBuffer(requestJSON))
+	if err != nil {
+		log.Printf("Erreur lors de la création de la nouvelle requête : %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erreur lors de la création de la nouvelle requête"})
+		return
+	}
+	newReq.Header.Set("Content-Type", "application/json")
+
+	newResp, err := client.Do(newReq)
+	if err != nil {
+		log.Printf("Erreur lors de l'envoi de la nouvelle requête : %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erreur lors de l'envoi de la nouvelle requête"})
+		return
+	}
+	defer newResp.Body.Close()
+
+	// Lire la réponse de la nouvelle requête
+	newBody, err := io.ReadAll(newResp.Body)
+	if err != nil {
+		log.Printf("Erreur lors de la lecture de la réponse de la nouvelle requête : %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erreur lors de la lecture de la réponse de la nouvelle requête"})
+		return
+	}
+
+	// Retourner la réponse finale
+	c.Data(newResp.StatusCode, "application/json", newBody)
 }
