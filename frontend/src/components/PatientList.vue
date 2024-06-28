@@ -339,7 +339,7 @@ const formattedKeywords = computed(() => {
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">Status</SelectItem>
-          <SelectItem value="grey">Gris</SelectItem>
+          <SelectItem value="gray">Gris</SelectItem>
           <SelectItem value="red">Rouge</SelectItem>
           <SelectItem value="orange">Orange</SelectItem>
           <SelectItem value="yellow">Jaune</SelectItem>
