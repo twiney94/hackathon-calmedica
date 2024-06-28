@@ -69,6 +69,17 @@ async function fetchData() {
   data.value = response.patients;
 }
 
+async function updatePatientStatus({
+  status,
+  patient,
+}: {
+  status: string;
+  patient: Patient;
+}) {
+  console.log("Updating patient status...");
+  await performHttpCall(`patients/${patient.uuid}`, "PUT", { status });
+}
+
 const showTable = ref(false);
 
 const sorting = ref<SortingState>([]);
@@ -257,17 +268,19 @@ const chatIsOpened = ref(false);
 
 const statusOrder = ["red", "orange", "yellow", "blue", "gray"];
 
-const mutatePatientStatus = ({
+const mutatePatientStatus = async ({
   status,
   patient,
 }: {
   status: string;
   patient: Patient;
 }) => {
-  console.log(status, patient);
   const index = data.value.findIndex((p) => p.uuid === patient.uuid);
   if (index !== -1) {
     data.value[index].status = status as Patient["status"];
+
+    await updatePatientStatus({ status, patient });
+
     table.value = useVueTable({
       data: data.value,
       columns,
