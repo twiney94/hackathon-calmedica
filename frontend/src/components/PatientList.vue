@@ -27,6 +27,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Skeleton } from "@/components/ui/skeleton";
 import { h, ref, watch, onMounted, computed } from "vue";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -319,9 +320,10 @@ const mutatePatientStatus = async ({
   }
 };
 
-const formattedKeywords = computed(() => {
-  return selectedPatient.value?.keywords?.join(", ");
-});
+const formattedKeywords = (patientId: string) => {
+  console.log("id :" + patientId);
+  return data.value.find((p) => p.uuid === patientId)?.keywords.join(", ");
+};
 </script>
 
 <template>
@@ -403,7 +405,9 @@ const formattedKeywords = computed(() => {
                         :props="cell.getContext()"
                     /></TooltipTrigger>
                     <TooltipContent v-if="cell.column.id === 'status'">
-                      <p>{{ formattedKeywords }}</p>
+                      <p>
+                        {{ formattedKeywords(row.original.uuid) }}
+                      </p>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
@@ -413,7 +417,7 @@ const formattedKeywords = computed(() => {
 
           <TableRow v-else>
             <TableCell :colspan="columns.length" class="h-24 text-center">
-              No results.
+              <Skeleton class="w-[100px] h-5 rounded-full" />
             </TableCell>
           </TableRow>
         </TableBody>
