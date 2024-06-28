@@ -2,15 +2,7 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-vue-next";
-import {
-  nextTick,
-  onMounted,
-  PropType,
-  watch,
-  ref,
-  computed,
-  onUpdated,
-} from "vue";
+import { nextTick, onMounted, PropType, watch, ref, computed } from "vue";
 import { performHttpCall } from "@/utils/http";
 import type { Patient, Message } from "@/types/patient";
 
@@ -179,7 +171,8 @@ async function addMessage() {
 watch(
   () => props.patient,
   async () => {
-    fetchData();
+    await fetchData();
+    await scrollToLastMessage();
   }
 );
 
