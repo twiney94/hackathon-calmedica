@@ -76,6 +76,7 @@ const columnFilters = ref<ColumnFiltersState>([]);
 const columnVisibility = ref<VisibilityState>({});
 const rowSelection = ref({});
 const statusFilter = ref("all");
+const selectedPatient = ref<Patient | null>(null);
 
 const columns: ColumnDef<Patient>[] = [
   {
@@ -160,7 +161,8 @@ const columns: ColumnDef<Patient>[] = [
   {
     id: "actions",
     header: "Actions",
-    cell: () => {
+    cell: ({ row }) => {
+      const patient = row.original;
       return h(
         Button,
         {
@@ -168,6 +170,7 @@ const columns: ColumnDef<Patient>[] = [
           size: "icon",
           onClick: () => {
             chatIsOpened.value = true;
+            selectedPatient.value = patient;
           },
         },
         [h(MessageSquare, { class: "w-4 h-4" })]
@@ -409,6 +412,7 @@ const statusOrder = ["red", "orange", "yellow", "blue"];
     </div>
   </div>
   <Chat
+    :patient="selectedPatient"
     :isOpened="chatIsOpened"
     :headInfo="'37475644738859 | Doe | John | 930208295 | 2024-06-25'"
     :messages="messages"

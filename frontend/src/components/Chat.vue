@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Loader2 } from 'lucide-vue-next';
+import { Loader2 } from "lucide-vue-next";
 import { nextTick, onMounted, PropType, watch, ref } from "vue";
 import { performHttpCall } from "@/utils/http";
+import type { Patient } from "@/types/patient";
 
 interface Message {
   id: number;
@@ -14,6 +15,10 @@ interface Message {
 }
 
 const props = defineProps({
+  patient: {
+    type: Object as PropType<Patient>,
+    required: true,
+  },
   isOpened: {
     type: Boolean,
     default: false,
@@ -47,12 +52,15 @@ watch(props.messages, async () => {
 });
 
 onMounted(() => {
-  watch(() => props.isOpened, async (newVal, oldVal) => {
-    if (newVal) {
-      await nextTick();
-      await scrollToLastMessage();
+  watch(
+    () => props.isOpened,
+    async (newVal, oldVal) => {
+      if (newVal) {
+        await nextTick();
+        await scrollToLastMessage();
+      }
     }
-  });
+  );
 });
 
 async function addMessage() {
@@ -83,6 +91,10 @@ async function addMessage() {
   }
 }
 
+const headerText = computed(() => {
+  return props.patient ? `${props.patient.phone}s` : "Chat";
+});
+
 async function addAudio() {
   const attachedFile = document.querySelector("#fileInput") as HTMLInputElement;
 
@@ -94,7 +106,7 @@ async function addAudio() {
       loading.value = true;
       props.messages.push({
         id: props.messages.length + 1,
-        text: 'En cours d\'analyse par l\'IA ...',
+        text: "En cours d'analyse par l'IA ...",
         audio: reader.result as string,
         sender: "user",
         metadata: formatDateTime(),
@@ -105,8 +117,13 @@ async function addAudio() {
       const formData = new FormData();
       formData.append("file", file);
 
-      await performHttpCall('generate/a667dd47-1471-410a-bcd3-d6d45d442880', 'POST', formData, true)
-      props.messages[props.messages.length - 1].text = 'Analyse terminée';
+      await performHttpCall(
+        `"generate/${props.patient.uuid}"`,
+        "POST",
+        formData,
+        true
+      );
+      props.messages[props.messages.length - 1].text = "Analyse terminée";
       loading.value = false;
     };
 
@@ -135,12 +152,14 @@ function formatDateTime() {
 <template>
   <div
     :class="[
-        'chat flex flex-col gap-2.5 shadow-2xl bg-white p-5 rounded-lg',
-        { 'opened': isOpened }
+      'chat flex flex-col gap-2.5 shadow-2xl bg-white p-5 rounded-lg',
+      { opened: isOpened },
     ]"
   >
     <div class="flex justify-between">
-      <p class="text-xl font-semibold truncate mr-2.5">{{ headInfo }}</p>
+      <p class="text-xl font-semibold truncate mr-2.5 flex items-center gap-2">
+        <div class="w-2 h-2 rounded-full" :class="`bg-${$props.patient.status}-500`"></div> {{ headerText }}
+      </p>
       <button class="chat__close" @click="$emit('close')">
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -158,7 +177,9 @@ function formatDateTime() {
         </svg>
       </button>
     </div>
-    <ul class="flex flex-col flex-1 overflow-y-auto gap-3 shadow-inner px-1.5 py-2">
+    <ul
+      class="flex flex-col flex-1 overflow-y-auto gap-3 shadow-inner px-1.5 py-2"
+    >
       <li
         v-for="{ id, text, audio, sender, metadata } in messages"
         :key="id"
@@ -178,10 +199,7 @@ function formatDateTime() {
             <p class="chat__text text-lg" v-if="text">
               {{ text }}
             </p>
-            <Loader2
-                v-show="loading"
-                class="w-4 h-4 mr-2 animate-spin"
-            />
+            <Loader2 v-show="loading" class="w-4 h-4 mr-2 animate-spin" />
           </div>
         </div>
         <span
