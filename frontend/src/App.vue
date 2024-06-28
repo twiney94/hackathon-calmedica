@@ -1,11 +1,54 @@
 <script setup lang="ts">
-import { Button } from "@/components/ui/button";
-import CalmedicaLogo from "@/assets/calmedica-flat.png";
+import NavBar from "@/components/NavBar.vue";
+import PatientList from "@/components/PatientList.vue";
+import { ref } from "vue";
+import { performHttpCall } from "@/utils/http.ts";
+
+const notifications = ref([]);
+
+async function getNotifications() {
+  const response = await performHttpCall("notifications", "GET");
+
+  for (const notification of response.notifications) {
+    const patientPhone = await getPatient(notification["PatientID"]);
+
+    notifications.value.push({
+      id: notification["ID"],
+      phone: patientPhone,
+      message: notification["Message"],
+    });
+  }
+}
+
+getNotifications();
+
+async function getPatient(patient_id: string) {
+  const response = await performHttpCall<any>(`patients/${patient_id}`, "GET");
+  return response.patient.phone;
+}
 </script>
 
 <template>
-  <div class="container">
-    <img :src="CalmedicaLogo" alt="Calmedica Logo" />
-    <Button class="bg-calmedica">Click me</Button>
+  <div class="container flex flex-col py-8 gap-8">
+    <NavBar :notifications="notifications" />
+    <PatientList @notify="getNotifications" />
   </div>
 </template>
+
+<style scoped>
+.status-blue {
+  background-color: #417cda;
+}
+.status-yellow {
+  background-color: #fcc858;
+}
+.status-orange {
+  background-color: #fdba74;
+}
+.status-red {
+  background-color: #dc2626;
+}
+.status-gray {
+  background-color: #d1d5db;
+}
+</style>

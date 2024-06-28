@@ -3,8 +3,11 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+    "outDir": "./dist",
+    "noEmit": false
   },
+  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue"],
   "files": [],
   "references": [
     {

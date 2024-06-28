@@ -1,5 +1,37 @@
-# Vue 3 + TypeScript + Vite
+## Prise en main
 
-This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+### Prérequis
 
-Learn more about the recommended Project Setup and IDE Support in the [Vue Docs TypeScript Guide](https://vuejs.org/guide/typescript/overview.html#project-setup).
+Assurez-vous d'avoir les logiciels suivants installés sur votre machine :
+
+- [Node.js](https://nodejs.org/) (v14.x ou supérieur recommandé)
+- [npm](https://www.npmjs.com/) (généralement inclus avec Node.js)
+
+### Installation
+
+1. Clonez le dépôt :
+
+   ```sh
+   git clone https://github.com/votre-nom-d-utilisateur/votre-repository.git
+   cd votre-repository
+   ```
+
+2. Installez les dépendances :
+
+   ```sh
+   npm install
+   ```
+
+3. Créez un fichier `.env` à la racine du projet avec le contenu suivant :
+
+   ```sh
+   VITE_API_BASE_URL="http://localhost:8080/"
+   ```
+
+### Lancer le projet
+
+Pour exécuter le projet en local, utilisez la commande suivante :
+
+```sh
+npm run dev
+```
