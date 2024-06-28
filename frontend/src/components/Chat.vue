@@ -191,13 +191,13 @@ function formatDateTime(backendDateTime?: string) {
   return `${day}-${month}-${year} ${hours}:${minutes}`;
 }
 
-async function addNotification(message: string) {
-  const response = await performHttpCall(`patients/${props.patient?.uuid}/notifications`, "POST", {
+async function addNotification(message: string, patient_id: string) {
+  const response = await performHttpCall(`patients/${patient_id}/notifications`, "POST", {
     message: message,
   });
 
   if (response.status === 200) {
-    emit("notify", {phone: props.patient.phone, description: message});
+    emit("notify");
   }
 }
 </script>

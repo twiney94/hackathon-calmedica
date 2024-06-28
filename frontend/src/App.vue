@@ -10,7 +10,15 @@ async function getNotifications() {
   const response = await performHttpCall("notifications", "GET");
 
   if (response.status === 200) {
-    notifications.value = response.notifications;
+    for(const notification of response.notifications) {
+      const patientPhone = await getPatient(notification.patient_id);
+
+      notifications.value.push({
+        id: notification.id,
+        phone: patientPhone,
+        message: notification.message
+      });
+    }
   }
 }
 
@@ -18,6 +26,17 @@ getNotifications();
 
 async function updateNotifications() {
   await getNotifications();
+}
+
+async function getPatient(patient_id: string) {
+  const response = await performHttpCall<any>(
+      `patients/${patient_id}`,
+      "GET"
+  );
+
+  if (response.status === 200) {
+    return response.phone;
+  }
 }
 </script>
 
