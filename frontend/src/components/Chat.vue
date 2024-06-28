@@ -2,9 +2,19 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-vue-next";
-import { nextTick, onMounted, PropType, watch, ref, computed } from "vue";
+import {
+  nextTick,
+  onMounted,
+  PropType,
+  watch,
+  ref,
+  computed,
+  onUpdated,
+} from "vue";
 import { performHttpCall } from "@/utils/http";
-import type { Patient } from "@/types/patient";
+import type { Patient, Message } from "@/types/patient";
+
+const messages = ref<Message[]>([]);
 
 const model = defineModel({
   prop: "isOpened",
@@ -29,19 +39,16 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-  headInfo: {
-    type: String,
-    required: true,
-  },
   messages: {
     type: Array as PropType<Message[]>,
     required: true,
   },
 });
 
-defineEmits(["close"]);
+const emit = defineEmits(["close", "newStatus"]);
 
 async function scrollToLastMessage(behavior: ScrollBehavior = "auto") {
+  if (!messages.value.length) return;
   await nextTick();
 
   const chat: HTMLElement = document.querySelector(".chat") as HTMLElement;
@@ -52,7 +59,7 @@ async function scrollToLastMessage(behavior: ScrollBehavior = "auto") {
   lastMessage.scrollIntoView({ behavior: behavior, block: "start" });
 }
 
-watch(props.messages, async () => {
+watch(messages.value, async () => {
   await scrollToLastMessage("smooth");
 });
 
@@ -68,6 +75,85 @@ onMounted(() => {
   );
 });
 
+const headerText = computed(() => {
+  return props.patient ? `${props.patient.phone}s` : "Chat";
+});
+
+async function addAudio() {
+  const attachedFile = document.querySelector("#fileInput") as HTMLInputElement;
+
+  if (attachedFile && attachedFile.files && attachedFile.files.length > 0) {
+    const chatInput = document.querySelector(
+      ".chat__input"
+    ) as HTMLInputElement;
+    const file = attachedFile.files[0];
+    const reader = new FileReader();
+    attachedFile.disabled = true;
+
+    chatInput.disabled = true;
+
+    reader.onload = async () => {
+      messages.value.push({
+        content: "Analyse en cours...",
+        patient_id: props.patient.uuid,
+        created_at: formatDateTime(),
+        loading: true,
+        audio: reader.result as string,
+      });
+
+      await scrollToLastMessage("smooth");
+
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await performHttpCall(
+        `generate/${props.patient.uuid}`,
+        "POST",
+        formData,
+        true
+      );
+
+      const newMessage = response["DESC"];
+
+      messages.value[messages.value.length - 1].content = "Analyse terminée";
+      messages.value[messages.value.length - 1].loading = false;
+      attachedFile.disabled = false;
+      chatInput.disabled = false;
+
+      await postMessage(newMessage);
+      emit("newStatus", {
+        status: response["STATUS"].toLowerCase(),
+        patient: props.patient,
+      });
+      await scrollToLastMessage("smooth");
+      // props.patient.status = response["STATUS"];
+    };
+
+    reader.readAsDataURL(file);
+
+    attachedFile.value = "";
+  }
+}
+
+async function fetchData() {
+  const response = await performHttpCall<any>(
+    `messages/${props.patient.uuid}`,
+    "GET"
+  );
+  messages.value = response.data;
+}
+
+async function postMessage(message: string) {
+  const body = {
+    content: message,
+    patient_Id: props.patient.uuid,
+  };
+  const response = await performHttpCall<any>(`messages`, "POST", body);
+  const newMessage = response.data;
+  newMessage.created_at = formatDateTime(response.data.created_at);
+  messages.value.push(response.data);
+}
+
 async function addMessage() {
   const messageInput = document.querySelector(
     ".chat__input"
@@ -82,13 +168,7 @@ async function addMessage() {
   }
 
   if (messageInput.value.trim() !== "") {
-    props.messages.push({
-      id: props.messages.length + 1,
-      text: messageInput.value,
-      sender: "user",
-      metadata: formatDateTime(),
-    });
-
+    postMessage(messageInput.value);
     await scrollToLastMessage("smooth");
     messageInput.value = "";
   } else {
@@ -96,60 +176,24 @@ async function addMessage() {
   }
 }
 
-const headerText = computed(() => {
-  return props.patient ? `${props.patient.phone}s` : "Chat";
-});
-
-async function addAudio() {
-  const attachedFile = document.querySelector("#fileInput") as HTMLInputElement;
-
-  if (attachedFile && attachedFile.files && attachedFile.files.length > 0) {
-    const chatInput = document.querySelector('.chat__input') as HTMLInputElement
-    const file = attachedFile.files[0];
-    const reader = new FileReader();
-    attachedFile.disabled = true;
-
-    chatInput.disabled = true;
-
-    reader.onload = async () => {
-      props.messages.push({
-        id: props.messages.length + 1,
-        text: "En cours d'analyse par l'IA ...",
-        audio: reader.result as string,
-        sender: "user",
-        metadata: formatDateTime(),
-        loading: true
-      });
-
-      await scrollToLastMessage("smooth");
-
-      const formData = new FormData();
-      formData.append("file", file);
-
-      await performHttpCall(
-        `"generate/${props.patient.uuid}"`,
-        "POST",
-        formData,
-        true
-      );
-      props.messages[props.messages.length - 1].text = "Analyse terminée";
-      props.messages[props.messages.length - 1].loading = false;
-      attachedFile.disabled = false;
-      chatInput.disabled = false;
-    };
-
-    reader.readAsDataURL(file);
-
-    attachedFile.value = "";
+watch(
+  () => props.patient,
+  async () => {
+    fetchData();
   }
-}
+);
 
 const pillColor = computed(() => {
   return props.patient ? `bg-${props.patient.status}-500` : "bg-sky-500";
 });
 
-function formatDateTime() {
-  const dateTime = new Date();
+function formatDateTime(backendDateTime?: string) {
+  let dateTime;
+  if (!backendDateTime) {
+    dateTime = new Date();
+  } else {
+    dateTime = new Date(backendDateTime);
+  }
   const day = formatDateTimeValue(dateTime.getDate());
   const month = formatDateTimeValue(dateTime.getMonth() + 1);
   const year = dateTime.getFullYear();
@@ -173,9 +217,12 @@ function formatDateTime() {
     v-if="modelValue"
   >
     <div class="flex justify-between">
-      <p class="text-xl font-semibold truncate mr-2.5 flex items-center gap-2">
-        <div class="w-4 h-4 rounded-full" :class="pillColor"></div> {{ headerText }}
-      </p>
+      <span
+        class="text-xl font-semibold truncate mr-2.5 flex items-center gap-2"
+      >
+        <div class="w-4 h-4 rounded-full" :class="pillColor"></div>
+        {{ headerText }}
+      </span>
       <button class="chat__close" @click="$emit('close')">
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -197,7 +244,14 @@ function formatDateTime() {
       class="flex flex-col flex-1 overflow-y-auto gap-3 shadow-inner px-1.5 py-2"
     >
       <li
-        v-for="{ id, text, audio, sender, metadata, loading } in messages"
+        v-for="{
+          id,
+          content,
+          patient_id,
+          created_at,
+          audio,
+          loading,
+        } in messages"
         :key="id"
         :class="[
           'chat__message flex flex-col w-fit max-w-96',
@@ -211,9 +265,12 @@ function formatDateTime() {
           ]"
         >
           <audio :src="audio" controls v-if="audio" />
-          <div class="chat__text-container flex items-center gap-2" v-if="text">
-            <p class="chat__text text-lg" v-if="text">
-              {{ text }}
+          <div
+            class="chat__text-container flex items-center gap-2"
+            v-if="content"
+          >
+            <p class="chat__text text-lg" v-if="content">
+              {{ content }}
             </p>
             <Loader2 v-show="loading" class="w-4 h-4 mr-2 animate-spin" />
           </div>
@@ -221,7 +278,7 @@ function formatDateTime() {
         <span
           :class="['text-base', sender === 'user' ? 'mr-2 text-right' : 'ml-2']"
         >
-          {{ metadata }}
+          {{ created_at }}
         </span>
       </li>
     </ul>

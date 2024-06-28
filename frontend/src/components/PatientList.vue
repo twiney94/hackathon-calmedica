@@ -57,7 +57,7 @@ import { performHttpCall } from "@/utils/http";
 
 export interface Patient {
   uuid: string;
-  status: "grey" | "blue" | "yellow" | "orange" | "red";
+  status: "gray" | "blue" | "yellow" | "orange" | "red";
   phone: string;
   action?: "message";
 }
@@ -254,40 +254,55 @@ onMounted(async () => {
 });
 
 const chatIsOpened = ref(false);
-const messages = ref([
-  {
-    id: 1,
-    text: "Lorem ipsum dolor sit amet consectetur. Faucibus nibh pulvinar erat aliquam diam.",
-    sender: "bot",
-    metadata: "26-04-2024 14:32",
-  },
-  {
-    id: 2,
-    text: "Lorem ipsum dolor sit amet consectetur. Faucibus nibh pulvinar erat aliquam diam.",
-    sender: "user",
-    metadata: "26-04-2024 14:33",
-  },
-  {
-    id: 3,
-    text: "Lorem ipsum dolor sit amet consectetur. Faucibus nibh pulvinar erat aliquam diam.",
-    sender: "bot",
-    metadata: "26-04-2024 14:34",
-  },
-  {
-    id: 4,
-    text: "Lorem ipsum dolor sit amet consectetur. Faucibus nibh pulvinar erat aliquam diam.",
-    sender: "user",
-    metadata: "26-04-2024 14:35",
-  },
-  {
-    id: 5,
-    text: "Lorem ipsum dolor sit amet consectetur. Faucibus nibh pulvinar erat aliquam diam.",
-    sender: "bot",
-    metadata: "26-04-2024 14:36",
-  },
-]);
 
-const statusOrder = ["red", "orange", "yellow", "blue"];
+const statusOrder = ["red", "orange", "yellow", "blue", "gray"];
+
+const mutatePatientStatus = ({
+  status,
+  patient,
+}: {
+  status: string;
+  patient: Patient;
+}) => {
+  console.log(status, patient);
+  const index = data.value.findIndex((p) => p.uuid === patient.uuid);
+  if (index !== -1) {
+    data.value[index].status = status as Patient["status"];
+    table.value = useVueTable({
+      data: data.value,
+      columns,
+      getCoreRowModel: getCoreRowModel(),
+      getPaginationRowModel: getPaginationRowModel(),
+      getSortedRowModel: getSortedRowModel(),
+      getFilteredRowModel: getFilteredRowModel(),
+      onSortingChange: (updaterOrValue) =>
+        valueUpdater(updaterOrValue, sorting),
+      onColumnFiltersChange: (updaterOrValue) =>
+        valueUpdater(updaterOrValue, columnFilters),
+      onColumnVisibilityChange: (updaterOrValue) =>
+        valueUpdater(updaterOrValue, columnVisibility),
+      onRowSelectionChange: (updaterOrValue) =>
+        valueUpdater(updaterOrValue, rowSelection),
+      state: {
+        get sorting() {
+          return sorting.value;
+        },
+        get columnFilters() {
+          return columnFilters.value;
+        },
+        get columnVisibility() {
+          return columnVisibility.value;
+        },
+        get rowSelection() {
+          return rowSelection.value;
+        },
+        set rowSelection(value) {
+          rowSelection.value = value;
+        },
+      },
+    });
+  }
+};
 </script>
 
 <template>
@@ -415,8 +430,7 @@ const statusOrder = ["red", "orange", "yellow", "blue"];
     v-model="selectedPatient"
     :patient="selectedPatient"
     :isOpened="chatIsOpened"
-    :headInfo="'37475644738859 | Doe | John | 930208295 | 2024-06-25'"
-    :messages="messages"
+    @new-status="mutatePatientStatus"
     @close="chatIsOpened = false"
   />
 </template>
