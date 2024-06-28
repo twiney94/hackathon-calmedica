@@ -7,7 +7,7 @@ import {performHttpCall} from "@/utils/http.ts";
 const notifications = ref([]);
 
 async function getNotifications() {
-  const response = await performHttpCall("notifications", "notifications");
+  const response = await performHttpCall("notifications", "GET");
 
   if (response.status === 200) {
     notifications.value = response.notifications;
@@ -16,8 +16,8 @@ async function getNotifications() {
 
 getNotifications();
 
-function updateNotifications(event) {
-  notifications.value.push(event);
+async function updateNotifications() {
+  await getNotifications();
 }
 </script>
 
