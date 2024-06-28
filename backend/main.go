@@ -40,6 +40,7 @@ func main() {
 	routes.RegisterPatientRoutes(r)
 	routes.SetupMessageRoutes(r, db)
 	routes.SetupChatRoutes(r)
+	routes.RegisterNotificationRoutes(r)
 
 	// Register AI routes
 	routes.SetupAIRoutes(r)
