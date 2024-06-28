@@ -87,7 +87,7 @@ const columnFilters = ref<ColumnFiltersState>([]);
 const columnVisibility = ref<VisibilityState>({});
 const rowSelection = ref({});
 const statusFilter = ref("all");
-const selectedPatient = ref<Patient | null>(null);
+const selectedPatient = ref<Patient>({});
 
 const columns: ColumnDef<Patient>[] = [
   {
@@ -119,7 +119,9 @@ const columns: ColumnDef<Patient>[] = [
           variant: "ghost",
           onClick: () => column.toggleSorting(column.getIsSorted() === "asc"),
         },
-        () => ["Status", h(ArrowUpDown, { class: "ml-2 h-4 w-4" })]
+        {
+          default: () => ["Status", h(ArrowUpDown, { class: "ml-2 h-4 w-4" })],
+        }
       );
     },
     cell: ({ row }) => {
@@ -135,7 +137,9 @@ const columns: ColumnDef<Patient>[] = [
             size: "icon",
             onClick: () => console.log("Play clicked"),
           },
-          () => h(Play, { class: "w-4 h-4" })
+          {
+            default: () => h(Play, { class: "w-4 h-4" }),
+          }
         ),
         h(
           Button,
@@ -144,7 +148,9 @@ const columns: ColumnDef<Patient>[] = [
             size: "icon",
             onClick: () => console.log("Pause clicked"),
           },
-          () => h(Pause, { class: "w-4 h-4" })
+          {
+            default: () => h(Pause, { class: "w-4 h-4" }),
+          }
         ),
       ]);
     },
@@ -164,7 +170,12 @@ const columns: ColumnDef<Patient>[] = [
           variant: "ghost",
           onClick: () => column.toggleSorting(column.getIsSorted() === "asc"),
         },
-        () => ["N° de téléphone", h(ArrowUpDown, { class: "ml-2 h-4 w-4" })]
+        {
+          default: () => [
+            "N° de téléphone",
+            h(ArrowUpDown, { class: "ml-2 h-4 w-4" }),
+          ],
+        }
       );
     },
     cell: ({ row }) => h("div", { class: "lowercase" }, row.getValue("phone")),
@@ -184,7 +195,9 @@ const columns: ColumnDef<Patient>[] = [
             selectedPatient.value = patient;
           },
         },
-        [h(MessageSquare, { class: "w-4 h-4" })]
+        {
+          default: () => h(MessageSquare, { class: "w-4 h-4" }),
+        }
       );
     },
     enableHiding: false,
@@ -332,9 +345,12 @@ const formattedKeywords = (patientId: string) => {
       <Input
         class="max-w-sm"
         placeholder="Filtrer les numéros de téléphone..."
-        :model-value="`${table.getColumn('phone')?.getFilterValue() as string}`"
-        @update:model-value="table.getColumn('phone')?.setFilterValue($event)"
+        :model-value="table.getColumn('phone')?.getFilterValue() ?? ''"
+        @update:model-value="
+          (value) => table.getColumn('phone')?.setFilterValue(value)
+        "
       />
+
       <Select v-model="statusFilter">
         <SelectTrigger class="w-[180px]">
           <SelectValue placeholder="Filter status" />
@@ -351,7 +367,7 @@ const formattedKeywords = (patientId: string) => {
       <DropdownMenu>
         <DropdownMenuTrigger as-child>
           <Button variant="outline" class="ml-auto">
-            Columns <ChevronDown class="ml-2 h-4 w-4" />
+            Colonnes <ChevronDown class="ml-2 h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">

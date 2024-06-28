@@ -22,7 +22,6 @@ export const performHttpCall = async (
       body: body instanceof FormData ? body : JSON.stringify(body),
     };
 
-    console.log("🚀 ~ `${API_BASE_URL}${path}`:", `${API_BASE_URL}${path}`);
     const response = await fetch(`${API_BASE_URL}${path}`, options);
 
     if (!response.ok) {

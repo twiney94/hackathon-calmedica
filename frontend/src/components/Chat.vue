@@ -31,10 +31,6 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-  messages: {
-    type: Array as PropType<Message[]>,
-    required: true,
-  },
 });
 
 const emit = defineEmits(["close", "newStatus"]);

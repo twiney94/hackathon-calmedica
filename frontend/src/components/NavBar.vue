@@ -2,32 +2,19 @@
   <nav class="bg-white shadow rounded-md">
     <div class="container mx-auto px-4">
       <div class="flex justify-between items-center py-4">
-        <router-link
-          to="/"
-          class="text-lg font-bold text-gray-800 cursor-pointer"
-        >
+        <a href="/" class="text-lg font-bold text-gray-800 cursor-pointer">
           <img
             :src="CalmedicaLogo"
             alt="Calmedica Logo"
             class="h-8 w-auto inline-block mr-2"
           />
-        </router-link>
+        </a>
         <div class="flex gap-4">
-          <router-link to="/login" class="text-sky-600 font-bold"
-            >Afficher les patients</router-link
-          >
-          <router-link to="/register" class="text-gray-800"
-            >Liste d'attente</router-link
-          >
-          <router-link to="/register" class="text-gray-800"
-            >Rapport</router-link
-          >
-          <router-link to="/register" class="text-gray-800"
-            >Tableau de bord</router-link
-          >
-          <router-link to="/register" class="text-gray-800"
-            >Autorisations</router-link
-          >
+          <a href="/" class="text-sky-600 font-bold">Afficher les patients</a>
+          <a href="/" class="text-gray-800">Liste d'attente</a>
+          <a href="/" class="text-gray-800">Rapport</a>
+          <a href="/" class="text-gray-800">Tableau de bord</a>
+          <a href="/" class="text-gray-800">Autorisations</a>
           <Popover>
             <PopoverTrigger>
               <svg
