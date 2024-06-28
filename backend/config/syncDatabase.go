@@ -10,6 +10,7 @@ func SyncDatabase() {
 		&models.User{},
 		&models.Message{},
 		&models.Patient{},
+		&models.Notification{},
 	}
 
 	err := DB.AutoMigrate(allModels...)
