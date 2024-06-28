@@ -115,7 +115,7 @@ const columns: ColumnDef<Patient>[] = [
       const status = row.getValue("status");
       return h("div", { class: "flex items-center gap-2" }, [
         h("div", {
-          class: `status-circle status-${status}`,
+          class: `status-circle w-4 h-4 rounded-full mr-4 bg-${status}-500`,
         }),
         h(
           Button,
@@ -412,7 +412,7 @@ const statusOrder = ["red", "orange", "yellow", "blue"];
     </div>
   </div>
   <Chat
-    v-if="selectedPatient"
+    v-model="selectedPatient"
     :patient="selectedPatient"
     :isOpened="chatIsOpened"
     :headInfo="'37475644738859 | Doe | John | 930208295 | 2024-06-25'"

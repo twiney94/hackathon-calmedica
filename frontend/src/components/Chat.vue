@@ -6,6 +6,11 @@ import { nextTick, onMounted, PropType, watch, ref, computed } from "vue";
 import { performHttpCall } from "@/utils/http";
 import type { Patient } from "@/types/patient";
 
+const model = defineModel({
+  prop: "isOpened",
+  event: "update:isOpened",
+});
+
 interface Message {
   id: number;
   text?: string;
@@ -139,10 +144,9 @@ async function addAudio() {
   }
 }
 
-const pillColor = (() => {
-  console.log(props.patient);
-  return `bg-${props.patient.status}-500`
-})
+const pillColor = computed(() => {
+  return props.patient ? `bg-${props.patient.status}-500` : "bg-sky-500";
+});
 
 function formatDateTime() {
   const dateTime = new Date();
@@ -166,10 +170,11 @@ function formatDateTime() {
       'chat flex flex-col gap-2.5 shadow-2xl bg-white p-5 rounded-lg',
       { opened: isOpened },
     ]"
+    v-if="modelValue"
   >
     <div class="flex justify-between">
       <p class="text-xl font-semibold truncate mr-2.5 flex items-center gap-2">
-        <div class="w-2 h-2 rounded-full" :class="pillColor()"></div> {{ headerText }}
+        <div class="w-4 h-4 rounded-full" :class="pillColor"></div> {{ headerText }}
       </p>
       <button class="chat__close" @click="$emit('close')">
         <svg

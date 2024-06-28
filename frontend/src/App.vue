@@ -9,3 +9,21 @@ import PatientList from "@/components/PatientList.vue";
     <PatientList />
   </div>
 </template>
+
+<style scoped>
+.status-blue {
+  background-color: #417cda;
+}
+.status-yellow {
+  background-color: #fcc858;
+}
+.status-orange {
+  background-color: #fdba74;
+}
+.status-red {
+  background-color: #dc2626;
+}
+.status-gray {
+  background-color: #d1d5db;
+}
+</style>
