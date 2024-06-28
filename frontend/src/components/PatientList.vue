@@ -278,6 +278,12 @@ onMounted(async () => {
 });
 
 const chatIsOpened = ref(false);
+watch(statusFilter, (newValue) => {
+  const statusColumn = table.value.getColumn("status");
+  if (statusColumn) {
+    statusColumn.setFilterValue(newValue === "all" ? undefined : newValue);
+  }
+});
 
 const statusOrder = ["red", "orange", "yellow", "blue", "gray"];
 
