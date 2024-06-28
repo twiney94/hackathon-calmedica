@@ -412,6 +412,7 @@ const statusOrder = ["red", "orange", "yellow", "blue"];
     </div>
   </div>
   <Chat
+    v-if="selectedPatient"
     :patient="selectedPatient"
     :isOpened="chatIsOpened"
     :headInfo="'37475644738859 | Doe | John | 930208295 | 2024-06-25'"

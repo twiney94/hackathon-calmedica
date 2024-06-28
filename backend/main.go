@@ -61,7 +61,7 @@ func createFixtures() {
 			UUID:      uuid.New().String(),
 			CreatedAt: now,
 			UpdatedAt: now,
-			Status:    "grey",
+			Status:    "gray",
 			Phone:     "+33601234567",
 			Keywords: []string{
 				"keyword1",
@@ -72,7 +72,7 @@ func createFixtures() {
 			UUID:      uuid.New().String(),
 			CreatedAt: now,
 			UpdatedAt: now,
-			Status:    "grey",
+			Status:    "gray",
 			Phone:     "+33701234599",
 			Keywords: []string{
 				"keyword3",

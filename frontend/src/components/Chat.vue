@@ -2,7 +2,7 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-vue-next";
-import { nextTick, onMounted, PropType, watch, ref } from "vue";
+import { nextTick, onMounted, PropType, watch, ref, computed } from "vue";
 import { performHttpCall } from "@/utils/http";
 import type { Patient } from "@/types/patient";
 
@@ -133,6 +133,11 @@ async function addAudio() {
   }
 }
 
+const pillColor = (() => {
+  console.log(props.patient);
+  return `bg-${props.patient.status}-500`
+})
+
 function formatDateTime() {
   const dateTime = new Date();
   const day = formatDateTimeValue(dateTime.getDate());
@@ -158,7 +163,7 @@ function formatDateTime() {
   >
     <div class="flex justify-between">
       <p class="text-xl font-semibold truncate mr-2.5 flex items-center gap-2">
-        <div class="w-2 h-2 rounded-full" :class="`bg-${$props.patient.status}-500`"></div> {{ headerText }}
+        <div class="w-2 h-2 rounded-full" :class="pillColor()"></div> {{ headerText }}
       </p>
       <button class="chat__close" @click="$emit('close')">
         <svg
