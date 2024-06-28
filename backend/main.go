@@ -5,12 +5,12 @@ import (
 	"backend/handlers"
 	"backend/models"
 	"backend/routes"
-	"time"
 
 	"github.com/gin-contrib/cors"
 	"github.com/google/uuid"
 
 	"github.com/gin-gonic/gin"
+	"time"
 )
 
 func init() {
@@ -21,7 +21,7 @@ func init() {
 }
 
 func main() {
-	//db connection result := config.DB.Create(&user)
+	// db connection result := config.DB.Create(&user)
 	db := config.DB
 
 	r := gin.Default()
@@ -38,11 +38,7 @@ func main() {
 	// Register routes
 	routes.SetupUserRoutes(r, db)
 	routes.RegisterPatientRoutes(r)
-
-	// Register message routes
 	routes.SetupMessageRoutes(r, db)
-
-	// Register chat routes
 	routes.SetupChatRoutes(r)
 
 	// Register AI routes
@@ -56,7 +52,6 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-
 }
 
 func createFixtures() {
@@ -66,7 +61,7 @@ func createFixtures() {
 			UUID:      uuid.New().String(),
 			CreatedAt: now,
 			UpdatedAt: now,
-			Status:    "grey",
+			Status:    "gray",
 			Phone:     "+33601234567",
 			Keywords: []string{
 				"keyword1",
@@ -77,7 +72,7 @@ func createFixtures() {
 			UUID:      uuid.New().String(),
 			CreatedAt: now,
 			UpdatedAt: now,
-			Status:    "grey",
+			Status:    "gray",
 			Phone:     "+33701234599",
 			Keywords: []string{
 				"keyword3",

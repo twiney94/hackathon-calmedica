@@ -14,14 +14,20 @@ import {
   getSortedRowModel,
   useVueTable,
 } from "@tanstack/vue-table";
-import { ArrowUpDown, ChevronDown, MessageSquare } from "lucide-vue-next";
+import {
+  ArrowUpDown,
+  ChevronDown,
+  MessageSquare,
+  Play,
+  Pause,
+} from "lucide-vue-next";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { h, ref, watch } from "vue";
+import { h, ref, watch, onMounted } from "vue";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -47,77 +53,30 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { valueUpdater } from "@/utils/utils";
+import { performHttpCall } from "@/utils/http";
 
 export interface Patient {
-  id: string;
+  uuid: string;
   status: "grey" | "blue" | "yellow" | "orange" | "red";
   phone: string;
   action?: "message";
 }
 
-const data: Patient[] = [
-  {
-    id: "m5gr84i9",
-    status: "grey",
-    phone: "+33 7 54 12 36 98",
-  },
-  {
-    id: "3u1reuv4",
-    status: "yellow",
-    phone: "+33 1 24 87 54 12",
-  },
-  {
-    id: "derv1ws0",
-    status: "orange",
-    phone: "+33 9 87 54 12 36",
-  },
-  {
-    id: "5kma53ae",
-    status: "red",
-    phone: "+33 6 54 12 36 98",
-  },
-  {
-    id: "bhqecj4p",
-    status: "orange",
-    phone: "+33 7 54 12 36 98",
-  },
-];
+const data = ref<Patient[]>([]);
 
-const chatIsOpened = ref(false);
-const messages = ref([
-  {
-    id: 1,
-    text: "Lorem ipsum dolor sit amet consectetur. Faucibus nibh pulvinar erat aliquam diam.",
-    sender: "bot",
-    metadata: "26-04-2024 14:32",
-  },
-  {
-    id: 2,
-    text: "Lorem ipsum dolor sit amet consectetur. Faucibus nibh pulvinar erat aliquam diam.",
-    sender: "user",
-    metadata: "26-04-2024 14:33",
-  },
-  {
-    id: 3,
-    text: "Lorem ipsum dolor sit amet consectetur. Faucibus nibh pulvinar erat aliquam diam.",
-    sender: "bot",
-    metadata: "26-04-2024 14:34",
-  },
-  {
-    id: 4,
-    text: "Lorem ipsum dolor sit amet consectetur. Faucibus nibh pulvinar erat aliquam diam.",
-    sender: "user",
-    metadata: "26-04-2024 14:35",
-  },
-  {
-    id: 5,
-    text: "Lorem ipsum dolor sit amet consectetur. Faucibus nibh pulvinar erat aliquam diam.",
-    sender: "bot",
-    metadata: "26-04-2024 14:36",
-  },
-]);
+async function fetchData() {
+  const response = await performHttpCall<Patient[]>("patients", "GET");
+  data.value = response.patients;
+}
 
-const statusOrder = ["red", "orange", "yellow", "blue"];
+const showTable = ref(false);
+
+const sorting = ref<SortingState>([]);
+const columnFilters = ref<ColumnFiltersState>([]);
+const columnVisibility = ref<VisibilityState>({});
+const rowSelection = ref({});
+const statusFilter = ref("all");
+const selectedPatient = ref<Patient | null>(null);
 
 const columns: ColumnDef<Patient>[] = [
   {
@@ -154,9 +113,29 @@ const columns: ColumnDef<Patient>[] = [
     },
     cell: ({ row }) => {
       const status = row.getValue("status");
-      return h("div", {
-        class: `status-circle status-${status}`,
-      });
+      return h("div", { class: "flex items-center gap-2" }, [
+        h("div", {
+          class: `status-circle status-${status}`,
+        }),
+        h(
+          Button,
+          {
+            variant: "outline",
+            size: "icon",
+            onClick: () => console.log("Play clicked"),
+          },
+          () => h(Play, { class: "w-4 h-4" })
+        ),
+        h(
+          Button,
+          {
+            variant: "outline",
+            size: "icon",
+            onClick: () => console.log("Pause clicked"),
+          },
+          () => h(Pause, { class: "w-4 h-4" })
+        ),
+      ]);
     },
     sortingFn: (a, b) => {
       return (
@@ -182,7 +161,8 @@ const columns: ColumnDef<Patient>[] = [
   {
     id: "actions",
     header: "Actions",
-    cell: () => {
+    cell: ({ row }) => {
+      const patient = row.original;
       return h(
         Button,
         {
@@ -190,6 +170,7 @@ const columns: ColumnDef<Patient>[] = [
           size: "icon",
           onClick: () => {
             chatIsOpened.value = true;
+            selectedPatient.value = patient;
           },
         },
         [h(MessageSquare, { class: "w-4 h-4" })]
@@ -199,50 +180,114 @@ const columns: ColumnDef<Patient>[] = [
   },
 ];
 
-const sorting = ref<SortingState>([]);
-const columnFilters = ref<ColumnFiltersState>([]);
-const columnVisibility = ref<VisibilityState>({});
-const rowSelection = ref({});
-const statusFilter = ref("all");
-
-watch(statusFilter, () => {
-  table.setColumnFilters([
-    {
-      id: "status",
-      value: statusFilter.value === "all" ? undefined : statusFilter.value,
+const table = ref(
+  useVueTable({
+    data: data.value,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    onSortingChange: (updaterOrValue) => valueUpdater(updaterOrValue, sorting),
+    onColumnFiltersChange: (updaterOrValue) =>
+      valueUpdater(updaterOrValue, columnFilters),
+    onColumnVisibilityChange: (updaterOrValue) =>
+      valueUpdater(updaterOrValue, columnVisibility),
+    onRowSelectionChange: (updaterOrValue) =>
+      valueUpdater(updaterOrValue, rowSelection),
+    state: {
+      get sorting() {
+        return sorting.value;
+      },
+      get columnFilters() {
+        return columnFilters.value;
+      },
+      get columnVisibility() {
+        return columnVisibility.value;
+      },
+      get rowSelection() {
+        return rowSelection.value;
+      },
+      set rowSelection(value) {
+        rowSelection.value = value;
+      },
     },
-  ]);
+  })
+);
+
+onMounted(async () => {
+  await fetchData();
+  await new Promise((resolve) => setTimeout(resolve, 2000));
+  table.value = useVueTable({
+    data: data.value,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    onSortingChange: (updaterOrValue) => valueUpdater(updaterOrValue, sorting),
+    onColumnFiltersChange: (updaterOrValue) =>
+      valueUpdater(updaterOrValue, columnFilters),
+    onColumnVisibilityChange: (updaterOrValue) =>
+      valueUpdater(updaterOrValue, columnVisibility),
+    onRowSelectionChange: (updaterOrValue) =>
+      valueUpdater(updaterOrValue, rowSelection),
+    state: {
+      get sorting() {
+        return sorting.value;
+      },
+      get columnFilters() {
+        return columnFilters.value;
+      },
+      get columnVisibility() {
+        return columnVisibility.value;
+      },
+      get rowSelection() {
+        return rowSelection.value;
+      },
+      set rowSelection(value) {
+        rowSelection.value = value;
+      },
+    },
+  });
+  showTable.value = true;
 });
 
-const table = useVueTable({
-  data,
-  columns,
-  getCoreRowModel: getCoreRowModel(),
-  getPaginationRowModel: getPaginationRowModel(),
-  getSortedRowModel: getSortedRowModel(),
-  getFilteredRowModel: getFilteredRowModel(),
-  onSortingChange: (updaterOrValue) => valueUpdater(updaterOrValue, sorting),
-  onColumnFiltersChange: (updaterOrValue) =>
-    valueUpdater(updaterOrValue, columnFilters),
-  onColumnVisibilityChange: (updaterOrValue) =>
-    valueUpdater(updaterOrValue, columnVisibility),
-  onRowSelectionChange: (updaterOrValue) =>
-    valueUpdater(updaterOrValue, rowSelection),
-  state: {
-    get sorting() {
-      return sorting.value;
-    },
-    get columnFilters() {
-      return columnFilters.value;
-    },
-    get columnVisibility() {
-      return columnVisibility.value;
-    },
-    get rowSelection() {
-      return rowSelection.value;
-    },
+const chatIsOpened = ref(false);
+const messages = ref([
+  {
+    id: 1,
+    text: "Lorem ipsum dolor sit amet consectetur. Faucibus nibh pulvinar erat aliquam diam.",
+    sender: "bot",
+    metadata: "26-04-2024 14:32",
   },
-});
+  {
+    id: 2,
+    text: "Lorem ipsum dolor sit amet consectetur. Faucibus nibh pulvinar erat aliquam diam.",
+    sender: "user",
+    metadata: "26-04-2024 14:33",
+  },
+  {
+    id: 3,
+    text: "Lorem ipsum dolor sit amet consectetur. Faucibus nibh pulvinar erat aliquam diam.",
+    sender: "bot",
+    metadata: "26-04-2024 14:34",
+  },
+  {
+    id: 4,
+    text: "Lorem ipsum dolor sit amet consectetur. Faucibus nibh pulvinar erat aliquam diam.",
+    sender: "user",
+    metadata: "26-04-2024 14:35",
+  },
+  {
+    id: 5,
+    text: "Lorem ipsum dolor sit amet consectetur. Faucibus nibh pulvinar erat aliquam diam.",
+    sender: "bot",
+    metadata: "26-04-2024 14:36",
+  },
+]);
+
+const statusOrder = ["red", "orange", "yellow", "blue"];
 </script>
 
 <template>
@@ -251,7 +296,7 @@ const table = useVueTable({
       <Input
         class="max-w-sm"
         placeholder="Filtrer les numéros de téléphone..."
-        :model-value="table.getColumn('phone')?.getFilterValue() as string"
+        :model-value="`${table.getColumn('phone')?.getFilterValue() as string}`"
         @update:model-value="table.getColumn('phone')?.setFilterValue($event)"
       />
       <Select v-model="statusFilter">
@@ -367,34 +412,11 @@ const table = useVueTable({
     </div>
   </div>
   <Chat
+    v-if="selectedPatient"
+    :patient="selectedPatient"
     :isOpened="chatIsOpened"
     :headInfo="'37475644738859 | Doe | John | 930208295 | 2024-06-25'"
     :messages="messages"
     @close="chatIsOpened = false"
   />
 </template>
-
-<style scoped>
-.status-circle {
-  display: inline-block;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-}
-.status-blue {
-  background-color: #417cda;
-}
-.status-yellow {
-  background-color: #fcc858;
-}
-.status-orange {
-  background-color: #fdba74;
-}
-.status-red {
-  background-color: #dc2626;
-}
-
-.status-grey {
-  background-color: #d1d5db;
-}
-</style>
