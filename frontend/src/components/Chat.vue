@@ -106,7 +106,7 @@ async function addAudio() {
         patient: props.patient,
       });
       await scrollToLastMessage("smooth");
-      await addNotification(newMessage);
+      await addNotification(newMessage, props.patient.uuid);
     };
 
     reader.readAsDataURL(file);
@@ -192,9 +192,13 @@ function formatDateTime(backendDateTime?: string) {
 }
 
 async function addNotification(message: string, patient_id: string) {
-  const response = await performHttpCall(`patients/${patient_id}/notifications`, "POST", {
-    message: message,
-  });
+  const response = await performHttpCall(
+    `patients/${patient_id}/notifications`,
+    "POST",
+    {
+      message: message,
+    }
+  );
 
   if (response.status === 200) {
     emit("notify");
