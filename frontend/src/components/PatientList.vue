@@ -27,7 +27,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { h, ref, watch, onMounted } from "vue";
+import { h, ref, watch, onMounted, computed } from "vue";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -54,13 +54,7 @@ import {
 } from "@/components/ui/select";
 import { valueUpdater } from "@/utils/utils";
 import { performHttpCall } from "@/utils/http";
-
-export interface Patient {
-  uuid: string;
-  status: "gray" | "blue" | "yellow" | "orange" | "red";
-  phone: string;
-  action?: "message";
-}
+import type { Patient } from "@/types/patient";
 
 const data = ref<Patient[]>([]);
 
@@ -71,13 +65,18 @@ async function fetchData() {
 
 async function updatePatientStatus({
   status,
+  keywords,
   patient,
 }: {
   status: string;
+  keywords: string[];
   patient: Patient;
 }) {
   console.log("Updating patient status...");
-  await performHttpCall(`patients/${patient.uuid}`, "PUT", { status });
+  await performHttpCall(`patients/${patient.uuid}`, "PUT", {
+    status,
+    keywords,
+  });
 }
 
 const showTable = ref(false);
@@ -270,16 +269,19 @@ const statusOrder = ["red", "orange", "yellow", "blue", "gray"];
 
 const mutatePatientStatus = async ({
   status,
+  keywords,
   patient,
 }: {
   status: string;
+  keywords: string[];
   patient: Patient;
 }) => {
   const index = data.value.findIndex((p) => p.uuid === patient.uuid);
   if (index !== -1) {
     data.value[index].status = status as Patient["status"];
+    data.value[index].keywords = keywords;
 
-    await updatePatientStatus({ status, patient });
+    await updatePatientStatus({ status, keywords, patient });
 
     table.value = useVueTable({
       data: data.value,
@@ -316,6 +318,10 @@ const mutatePatientStatus = async ({
     });
   }
 };
+
+const formattedKeywords = computed(() => {
+  return selectedPatient.value?.keywords?.join(", ");
+});
 </script>
 
 <template>
@@ -397,7 +403,7 @@ const mutatePatientStatus = async ({
                         :props="cell.getContext()"
                     /></TooltipTrigger>
                     <TooltipContent v-if="cell.column.id === 'status'">
-                      <p>Status justification</p>
+                      <p>{{ formattedKeywords }}</p>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>

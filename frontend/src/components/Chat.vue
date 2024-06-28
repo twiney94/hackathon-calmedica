@@ -68,7 +68,7 @@ onMounted(() => {
 });
 
 const headerText = computed(() => {
-  return props.patient ? `${props.patient.phone}s` : "Chat";
+  return props.patient ? `Suivi du patient ${props.patient.phone}` : "Chat";
 });
 
 async function addAudio() {
@@ -115,10 +115,10 @@ async function addAudio() {
       await postMessage(newMessage);
       emit("newStatus", {
         status: response["STATUS"].toLowerCase(),
+        keywords: response["KEYWORDS"],
         patient: props.patient,
       });
       await scrollToLastMessage("smooth");
-      // props.patient.status = response["STATUS"];
     };
 
     reader.readAsDataURL(file);
@@ -132,6 +132,9 @@ async function fetchData() {
     `messages/${props.patient.uuid}`,
     "GET"
   );
+  response.data.forEach((message: any) => {
+    message.created_at = formatDateTime(message.created_at);
+  });
   messages.value = response.data;
 }
 

@@ -1,7 +1,7 @@
 export type Patient = {
   uuid: string;
   phone: string;
-  status: string;
+  status: "gray" | "blue" | "yellow" | "orange" | "red";
   keywords: string[];
 };
 
