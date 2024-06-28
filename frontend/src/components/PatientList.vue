@@ -57,6 +57,8 @@ import { valueUpdater } from "@/utils/utils";
 import { performHttpCall } from "@/utils/http";
 import type { Patient } from "@/types/patient";
 
+const emit = defineEmits(["notify"]);
+
 const data = ref<Patient[]>([]);
 
 async function fetchData() {
@@ -476,6 +478,7 @@ const formattedKeywords = (patientId: string) => {
     :patient="selectedPatient"
     :isOpened="chatIsOpened"
     @new-status="mutatePatientStatus"
+    @notify="emit('notify', $event)"
     @close="chatIsOpened = false"
   />
 </template>

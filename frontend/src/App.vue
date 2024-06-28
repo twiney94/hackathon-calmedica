@@ -1,12 +1,30 @@
 <script setup lang="ts">
 import NavBar from "@/components/NavBar.vue";
 import PatientList from "@/components/PatientList.vue";
+import { ref } from "vue";
+import {performHttpCall} from "@/utils/http.ts";
+
+const notifications = ref([]);
+
+async function getNotifications() {
+  const response = await performHttpCall("notifications", "notifications");
+
+  if (response.status === 200) {
+    notifications.value = response.notifications;
+  }
+}
+
+getNotifications();
+
+function updateNotifications(event) {
+  notifications.value.push(event);
+}
 </script>
 
 <template>
   <div class="container flex flex-col py-8 gap-8">
-    <NavBar />
-    <PatientList />
+    <NavBar :notifications="notifications"/>
+    <PatientList @notify="updateNotifications"/>
   </div>
 </template>
 

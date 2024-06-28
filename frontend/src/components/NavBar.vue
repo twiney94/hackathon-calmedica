@@ -1,3 +1,19 @@
+<script setup lang="ts">
+import CalmedicaLogo from "@/assets/calmedica-blue.png";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+
+defineProps({
+  notifications: {
+    type: Array,
+    required: true,
+  },
+});
+</script>
+
 <template>
   <nav class="bg-white shadow rounded-md">
     <div class="container mx-auto px-4">
@@ -33,21 +49,25 @@
               </svg>
             </PopoverTrigger>
             <PopoverContent>
-              <div
+              <ul
+                v-if="notifications.length > 0"
                 id="toast-message-cta"
                 class="w-full max-w-xs p-4 text-gray-500 bg-white rounded-lg shadow dark:bg-gray-800 dark:text-gray-400"
                 role="alert"
               >
-                <div class="flex">
-                  <div class="w-8 h-8 bg-orange-500 rounded-full" s />
+                <li
+                    v-for="{id, phone, description} in notifications"
+                    class="flex"
+                    :key="id"
+                >
+                  <div class="min-w-8 max-w-8 min-h-8 max-h-8 bg-orange-500 rounded-full" />
                   <div class="ms-3 text-sm font-normal">
                     <span
                       class="mb-1 text-sm font-semibold text-gray-900 dark:text-white"
-                      >01 75 45 63 58</span
+                      >{{ phone }}</span
                     >
                     <div class="mb-2 text-sm font-normal">
-                      Cet appel nécessite une intervention (sutures
-                      défaillantes).
+                      {{ description }}
                     </div>
                     <a
                       href="#"
@@ -78,8 +98,12 @@
                       />
                     </svg>
                   </button>
-                </div>
-              </div>
+                </li>
+              </ul>
+              <p
+                  v-else
+                  class="text-sm font-normal"
+              >Aucune notification</p>
             </PopoverContent>
           </Popover>
         </div>
@@ -87,12 +111,3 @@
     </div>
   </nav>
 </template>
-
-<script setup lang="ts">
-import CalmedicaLogo from "@/assets/calmedica-blue.png";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-</script>
