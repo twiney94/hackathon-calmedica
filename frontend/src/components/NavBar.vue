@@ -56,7 +56,7 @@ defineProps({
                 role="alert"
               >
                 <li
-                    v-for="{id, phone, description} in notifications"
+                    v-for="{id, phone, message} in notifications"
                     class="flex"
                     :key="id"
                 >
@@ -67,7 +67,7 @@ defineProps({
                       >{{ phone }}</span
                     >
                     <div class="mb-2 text-sm font-normal">
-                      {{ description }}
+                      {{ Message }}
                     </div>
                     <a
                       href="#"
