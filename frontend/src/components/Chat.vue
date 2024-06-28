@@ -105,7 +105,7 @@ async function addAudio() {
       const formData = new FormData();
       formData.append("file", file);
 
-      await performHttpCall('/whisper', 'POST', formData, true)
+      await performHttpCall('generate/a667dd47-1471-410a-bcd3-d6d45d442880', 'POST', formData, true)
       props.messages[props.messages.length - 1].text = 'Analyse terminée';
       loading.value = false;
     };

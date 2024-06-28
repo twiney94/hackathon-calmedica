@@ -5,6 +5,11 @@ import (
 	"backend/handlers"
 	"backend/models"
 	"backend/routes"
+	"time"
+
+	"github.com/gin-contrib/cors"
+	"github.com/google/uuid"
+
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/rs/cors"
@@ -24,25 +29,23 @@ func main() {
 
 	r := gin.Default()
 
-	// Configure CORS middleware
-	corsConfig := cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:5173"},
-		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE"},
-		AllowedHeaders:   []string{"Content-Type", "Authorization"},
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:5173"},
+		AllowMethods:     []string{"POST", "GET", "OPTIONS", "PUT", "DELETE"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
-	})
-
-	// Apply the CORS middleware
-	r.Use(func(c *gin.Context) {
-		corsConfig.HandlerFunc(c.Writer, c.Request)
-		c.Next()
-	})
+		MaxAge:           12 * time.Hour,
+	}))
 
 	// Register routes
 	routes.SetupUserRoutes(r, db)
 	routes.RegisterPatientRoutes(r)
 	routes.SetupMessageRoutes(r, db)
 	routes.SetupChatRoutes(r)
+
+	// Register AI routes
+	routes.SetupAIRoutes(r)
 
 	// Start handling messages
 	go handlers.HandleMessages()
@@ -63,6 +66,10 @@ func createFixtures() {
 			UpdatedAt: now,
 			Status:    "grey",
 			Phone:     "+33601234567",
+			Keywords: []string{
+				"keyword1",
+				"keyword2",
+			},
 		},
 		{
 			UUID:      uuid.New().String(),
@@ -70,7 +77,12 @@ func createFixtures() {
 			UpdatedAt: now,
 			Status:    "grey",
 			Phone:     "+33701234599",
+			Keywords: []string{
+				"keyword3",
+				"keyword4",
+			},
 		},
+		// Ajoutez d'autres patients si nécessaire
 	}
 
 	for _, patient := range patients {
