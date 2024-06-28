@@ -11,6 +11,7 @@ interface Message {
   audio?: string;
   sender: string;
   metadata: string;
+  loading?: boolean;
 }
 
 const props = defineProps({
@@ -27,7 +28,6 @@ const props = defineProps({
     required: true,
   },
 });
-const loading = ref(false);
 
 defineEmits(["close"]);
 
@@ -87,17 +87,21 @@ async function addAudio() {
   const attachedFile = document.querySelector("#fileInput") as HTMLInputElement;
 
   if (attachedFile && attachedFile.files && attachedFile.files.length > 0) {
+    const chatInput = document.querySelector('.chat__input') as HTMLInputElement
     const file = attachedFile.files[0];
     const reader = new FileReader();
+    attachedFile.disabled = true;
+
+    chatInput.disabled = true;
 
     reader.onload = async () => {
-      loading.value = true;
       props.messages.push({
         id: props.messages.length + 1,
         text: 'En cours d\'analyse par l\'IA ...',
         audio: reader.result as string,
         sender: "user",
         metadata: formatDateTime(),
+        loading: true
       });
 
       await scrollToLastMessage("smooth");
@@ -107,7 +111,9 @@ async function addAudio() {
 
       await performHttpCall('/whisper', 'POST', formData, true)
       props.messages[props.messages.length - 1].text = 'Analyse terminée';
-      loading.value = false;
+      props.messages[props.messages.length - 1].loading = false;
+      attachedFile.disabled = false;
+      chatInput.disabled = false;
     };
 
     reader.readAsDataURL(file);
@@ -160,7 +166,7 @@ function formatDateTime() {
     </div>
     <ul class="flex flex-col flex-1 overflow-y-auto gap-3 shadow-inner px-1.5 py-2">
       <li
-        v-for="{ id, text, audio, sender, metadata } in messages"
+        v-for="{ id, text, audio, sender, metadata, loading } in messages"
         :key="id"
         :class="[
           'chat__message flex flex-col w-fit max-w-96',
