@@ -5,14 +5,11 @@ import (
 	"backend/handlers"
 	"backend/models"
 	"backend/routes"
-	"time"
 
 	"github.com/gin-contrib/cors"
 	"github.com/google/uuid"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
-	"github.com/rs/cors"
 	"time"
 )
 

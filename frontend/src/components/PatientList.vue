@@ -285,9 +285,6 @@ const messages = ref([
 ]);
 
 const statusOrder = ["red", "orange", "yellow", "blue"];
-const refreshData = async () => {
-  await fetchData();
-};
 </script>
 
 <template>
@@ -312,8 +309,6 @@ const refreshData = async () => {
           <SelectItem value="blue">Bleu</SelectItem>
         </SelectContent>
       </Select>
-      {{ data }}
-      <Button variant="outline" @click="refreshData"> Refresh </Button>
       <DropdownMenu>
         <DropdownMenuTrigger as-child>
           <Button variant="outline" class="ml-auto">
