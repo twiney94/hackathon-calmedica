@@ -13,15 +13,6 @@ const model = defineModel({
   event: "update:isOpened",
 });
 
-interface Message {
-  id: number;
-  text?: string;
-  audio?: string;
-  sender: string;
-  metadata: string;
-  loading?: boolean;
-}
-
 const props = defineProps({
   patient: {
     type: Object as PropType<Patient>,
@@ -33,7 +24,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["close", "newStatus"]);
+const emit = defineEmits(["close", "newStatus", "notify"]);
 
 async function scrollToLastMessage(behavior: ScrollBehavior = "auto") {
   if (!messages.value.length) return;
@@ -115,6 +106,7 @@ async function addAudio() {
         patient: props.patient,
       });
       await scrollToLastMessage("smooth");
+      await addNotification(newMessage);
     };
 
     reader.readAsDataURL(file);
@@ -197,6 +189,16 @@ function formatDateTime(backendDateTime?: string) {
   }
 
   return `${day}-${month}-${year} ${hours}:${minutes}`;
+}
+
+async function addNotification(message: string) {
+  const response = await performHttpCall(`patients/${props.patient?.uuid}/notifications`, "POST", {
+    message: message,
+  });
+
+  if (response.status === 200) {
+    emit("notify", {phone: props.patient.phone, description: message});
+  }
 }
 </script>
 
