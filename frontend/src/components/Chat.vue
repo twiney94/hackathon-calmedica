@@ -39,7 +39,7 @@ async function scrollToLastMessage(behavior: ScrollBehavior = "auto") {
     ".chat__message:last-child"
   ) as HTMLElement;
 
-  lastMessage.scrollIntoView({ behavior: behavior, block: "end" });
+  lastMessage.scrollIntoView({ behavior: behavior, block: "start" });
 }
 
 watch(props.messages, async () => {
