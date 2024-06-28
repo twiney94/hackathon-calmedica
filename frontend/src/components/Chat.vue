@@ -281,7 +281,7 @@ function formatDateTime(backendDateTime?: string) {
           type="file"
           id="fileInput"
           class="hidden"
-          accept=".mp3, .wav"
+          accept=".mp3, .wav, .m4a"
           @change="addAudio"
         />
         <label for="fileInput">
